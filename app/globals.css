@@ -1,26 +1,102 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  /* Reset default palettes so only Citadel colors exist */
+  --color-*: initial;
+
+  /* Primitives */
+  --color-navy: #0F2A52;
+  --color-graphite: #1C2633;
+  --color-white: #FFFFFF;
+  --color-stone: #F3F1EC;
+  --color-steel: #D5DBE4;
+  --color-slate: #8A99AD;
+  --color-gold: #C4A254;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Radius (overrides Tailwind defaults) */
+  --radius-none: 0px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-full: 9999px;
+
+  /* Font (Next.js: set --font-inter via next/font) */
+  --font-sans: var(--font-inter), "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
+/* Semantic tokens reference primitives */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-surface: var(--color-stone);
+  --color-surface-dark: var(--color-navy);
+  --color-surface-darker: var(--color-graphite);
+  --color-surface-inverse: var(--color-white);
+  --color-fg: var(--color-graphite);
+  --color-fg-muted: var(--color-slate);
+  --color-fg-inverse: var(--color-white);
+  --color-fg-accent: var(--color-gold);
+  --color-line: var(--color-steel);
+  --color-line-dark: var(--color-navy);
+  --color-brand: var(--color-gold);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    font-family: var(--font-sans);
+  }
+  body {
+    background-color: #05070a;
+    color: var(--color-fg-inverse);
+  }
+
+  /* Lenis smooth scroll recommended styles */
+  html.lenis, html.lenis body {
+    height: auto;
+  }
+  .lenis.lenis-smooth {
+    scroll-behavior: auto !important;
+  }
+  .lenis.lenis-smooth [data-lenis-prevent] {
+    overscroll-behavior: contain;
+  }
+  .lenis.lenis-stopped {
+    overflow: hidden;
+  }
+  .lenis.lenis-smooth iframe {
+    pointer-events: none;
+  }
+
+  /* Custom Sleek Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #05070a;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #1c2633;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #c4a254;
+  }
+
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #1c2633 #05070a;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@utility opacity-48 {
+  opacity: 0.48;
+}
+
+@utility opacity-72 {
+  opacity: 0.72;
 }
