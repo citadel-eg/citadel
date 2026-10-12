@@ -1,224 +1,285 @@
 "use client";
 
-import React, { useState } from "react";
-
-const availableDates = [
-  { day: "Mon", date: "5", month: "Oct" },
-  { day: "Tue", date: "6", month: "Oct" },
-  { day: "Wed", date: "7", month: "Oct" },
-  { day: "Thu", date: "8", month: "Oct" },
-  { day: "Fri", date: "9", month: "Oct" },
-];
-
-const availableTimes = [
-  "10:00 AM",
-  "11:30 AM",
-  "1:00 PM",
-  "2:30 PM",
-  "4:00 PM",
-];
+import React, { useEffect, useRef, useState } from "react";
+import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
+import {
+  ConfirmedBooking,
+  DEFAULT_BUSINESS_DAYS,
+  DateOption,
+  generateUpcomingBusinessDays,
+} from "./schedule/types";
+import { SessionPicker } from "./schedule/SessionPicker";
+import { BookingForm } from "./schedule/BookingForm";
+import { BookingConfirmed } from "./schedule/BookingConfirmed";
 
 export function ScheduleConversation() {
-  const [selectedDate, setSelectedDate] = useState("7");
-  const [selectedTime, setSelectedTime] = useState("11:30 AM");
-  const [formSubmitted, setFormSubmitted] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+  const [dateOptions, setDateOptions] =
+    useState<DateOption[]>(DEFAULT_BUSINESS_DAYS);
+  const [selectedDate, setSelectedDate] =
+    useState<DateOption>(DEFAULT_BUSINESS_DAYS[0]);
+  const [selectedTime, setSelectedTime] = useState<string>("11:30 AM");
+  const [isCustomDate, setIsCustomDate] = useState(false);
+  const [minDateStr, setMinDateStr] = useState<string>("2026-10-13");
+  const [viewMonth, setViewMonth] = useState<number>(9); // Oct default for SSR
+  const [viewYear, setViewYear] = useState<number>(2026);
+
+  const [name, setName] = useState("");
+  const [company, setCompany] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [notes, setNotes] = useState("");
+
+  const [confirmedBooking, setConfirmedBooking] =
+    useState<ConfirmedBooking | null>(null);
+
+  // Compute live client business days, min selectable date, and calendar view safely
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const liveDays = generateUpcomingBusinessDays(5);
+      setDateOptions(liveDays);
+      setSelectedDate((prev) => (prev && liveDays.some((d) => d.rawDate === prev.rawDate) ? prev : liveDays[0]));
+
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const y = tomorrow.getFullYear();
+      const m = String(tomorrow.getMonth() + 1).padStart(2, "0");
+      const d = String(tomorrow.getDate()).padStart(2, "0");
+      setMinDateStr(`${y}-${m}-${d}`);
+      setViewMonth(tomorrow.getMonth());
+      setViewYear(tomorrow.getFullYear());
+
+      try {
+        const saved = localStorage.getItem("citadel_confirmed_appointment");
+        if (saved) {
+          setConfirmedBooking(JSON.parse(saved));
+        }
+      } catch {
+        // Ignore localStorage errors
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handlePrevMonth = () => {
+    if (viewMonth === 0) {
+      setViewMonth(11);
+      setViewYear((prev) => prev - 1);
+    } else {
+      setViewMonth((prev) => prev - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    if (viewMonth === 11) {
+      setViewMonth(0);
+      setViewYear((prev) => prev + 1);
+    } else {
+      setViewMonth((prev) => prev + 1);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setFormSubmitted(true);
+
+    const booking: ConfirmedBooking = {
+      id: `CIT-${Date.now().toString().slice(-6)}`,
+      name: name.trim(),
+      company: company.trim(),
+      email: email.trim(),
+      phone: phone.trim(),
+      notes: notes.trim(),
+      dateDisplay: selectedDate.fullDisplay,
+      rawDate: selectedDate.rawDate,
+      timeSlot: selectedTime,
+      createdAt: new Date().toISOString(),
+    };
+
+    setConfirmedBooking(booking);
+    try {
+      localStorage.setItem(
+        "citadel_confirmed_appointment",
+        JSON.stringify(booking),
+      );
+      // Also append to local appointment logs
+      const pastAppointments = JSON.parse(
+        localStorage.getItem("citadel_appointments_history") || "[]",
+      );
+      pastAppointments.unshift(booking);
+      localStorage.setItem(
+        "citadel_appointments_history",
+        JSON.stringify(pastAppointments.slice(0, 10)),
+      );
+    } catch {
+      // Ignore localStorage restrictions
+    }
   };
 
+  const handleBookAnother = () => {
+    setConfirmedBooking(null);
+    try {
+      localStorage.removeItem("citadel_confirmed_appointment");
+    } catch {
+      // Ignore
+    }
+  };
+
+  useGSAP(
+    () => {
+      const mm = gsap.matchMedia();
+
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        gsap.set("[data-animate='schedule-card']", {
+          opacity: 0,
+          y: 24,
+          scale: 0.99,
+        });
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top 85%",
+            once: true,
+            fastScrollEnd: true,
+          },
+        });
+
+        // 1. Header marker
+        tl.fromTo(
+          "[data-animate='header-num']",
+          { opacity: 0, x: -12 },
+          { opacity: 1, x: 0, duration: 0.25, ease: "power2.out" },
+          0,
+        );
+        tl.fromTo(
+          "[data-animate='header-line']",
+          { scaleX: 0 },
+          { scaleX: 1, duration: 0.28, ease: "power2.out" },
+          0.02,
+        );
+        tl.fromTo(
+          "[data-animate='header-title']",
+          { opacity: 0, x: 10 },
+          { opacity: 1, x: 0, duration: 0.25, ease: "power2.out" },
+          0.04,
+        );
+
+        // 2. Schedule Card entrance
+        tl.to(
+          "[data-animate='schedule-card']",
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.42,
+            ease: "power3.out",
+          },
+          0.08,
+        );
+      });
+
+      mm.add("(prefers-reduced-motion: reduce)", () => {
+        gsap.fromTo(
+          "[data-animate]",
+          { opacity: 0 },
+          {
+            opacity: 1,
+            duration: 0.25,
+            stagger: 0.03,
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top 85%",
+              once: true,
+              fastScrollEnd: true,
+            },
+          },
+        );
+      });
+
+      ScrollTrigger.refresh();
+
+      return () => {
+        mm.revert();
+      };
+    },
+    { scope: sectionRef },
+  );
+
   return (
-    <section id="schedule" className="relative w-full py-16 md:py-24 px-6 sm:px-10 bg-[#05070a] border-b border-white/10">
+    <section
+      ref={sectionRef}
+      id="schedule"
+      className="relative w-full py-16 md:py-24 px-6 sm:px-10 bg-[#05070a] border-b border-white/10 overflow-hidden"
+    >
       <div className="max-w-[1353px] mx-auto space-y-12 md:space-y-16">
         {/* Section Header Marker */}
-        <div className="flex items-center gap-4">
-          <span className="text-xs sm:text-[13px] font-semibold tracking-[3px] uppercase text-white font-mono">
+        <div data-animate="header-marker" className="flex items-center gap-4">
+          <span
+            data-animate="header-num"
+            className="text-xs sm:text-[13px] font-semibold tracking-[3px] uppercase text-brand font-mono"
+          >
             08
           </span>
-          <span className="w-10 h-[1px] bg-white/30" />
-          <span className="text-xs sm:text-[13px] font-semibold tracking-[3px] uppercase text-white/80">
+          <span
+            data-animate="header-line"
+            className="w-10 h-px bg-white/30 origin-left"
+          />
+          <span
+            data-animate="header-title"
+            className="text-xs sm:text-[13px] font-semibold tracking-[3px] uppercase text-white/80"
+          >
             Schedule a conversation
           </span>
         </div>
 
-        {/* Dual Form Card */}
-        <div className="border border-white/15 rounded-md overflow-hidden grid grid-cols-1 lg:grid-cols-12 bg-[#070b12]">
+        {/* Dual Form Card Container */}
+        <div
+          data-animate="schedule-card"
+          className="border border-white/15 rounded-md overflow-hidden grid grid-cols-1 lg:grid-cols-12 bg-[#070b12] opacity-0 shadow-[0_0_40px_rgba(0,0,0,0.4)]"
+        >
           {/* Left Column: Date & Time Picker */}
-          <div className="lg:col-span-6 p-6 sm:p-10 border-b lg:border-b-0 lg:border-r border-white/15 flex flex-col justify-between space-y-10">
-            <div className="space-y-8">
-              <div>
-                <span className="text-xs font-semibold tracking-[2px] uppercase text-white/50 font-mono">
-                  01 / DATE &amp; TIME
-                </span>
-                <h3 className="text-2xl sm:text-4xl font-bold text-white tracking-tight mt-2">
-                  Schedule a conversation
-                </h3>
-                <p className="text-sm sm:text-base text-white/60 font-normal mt-2">
-                  Choose a convenient date and time for a first conversation with our team.
-                </p>
-              </div>
-
-              {/* Date Selector */}
-              <div className="space-y-3">
-                <label className="text-xs font-semibold tracking-[2px] uppercase text-white/60 font-mono">
-                  Date
-                </label>
-                <div className="grid grid-cols-5 gap-2">
-                  {availableDates.map((item) => {
-                    const isSelected = selectedDate === item.date;
-                    return (
-                      <button
-                        key={item.date}
-                        type="button"
-                        onClick={() => setSelectedDate(item.date)}
-                        className={`flex flex-col items-center justify-center py-4 rounded-sm border transition-all duration-200 ${
-                          isSelected
-                            ? "bg-brand text-[#1C2633] border-brand shadow-sm font-semibold"
-                            : "bg-[#090e17] text-white/70 border-white/15 hover:border-white/30 hover:text-white"
-                        }`}
-                      >
-                        <span className="text-[11px] font-medium uppercase tracking-wider">
-                          {item.day}
-                        </span>
-                        <span className="text-xl sm:text-2xl font-bold my-1 font-mono">
-                          {item.date}
-                        </span>
-                        <span className="text-[10px] font-medium uppercase tracking-wider">
-                          {item.month}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Time Selector */}
-              <div className="space-y-3">
-                <label className="text-xs font-semibold tracking-[2px] uppercase text-white/60 font-mono">
-                  Time
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                  {availableTimes.map((time) => {
-                    const isSelected = selectedTime === time;
-                    return (
-                      <button
-                        key={time}
-                        type="button"
-                        onClick={() => setSelectedTime(time)}
-                        className={`py-3 px-4 rounded-sm border text-xs sm:text-sm font-mono transition-all duration-200 ${
-                          isSelected
-                            ? "bg-brand text-[#1C2633] border-brand font-bold shadow-sm"
-                            : "bg-[#090e17] text-white/70 border-white/15 hover:border-white/30 hover:text-white"
-                        }`}
-                      >
-                        {time}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
-
-            {/* Timezone bar */}
-            <div className="pt-6 border-t border-white/10 flex items-center justify-between text-xs font-mono">
-              <span className="text-white/40 tracking-[2px] uppercase">TIME ZONE</span>
-              <span className="text-white font-semibold tracking-wider">Africa/Cairo</span>
-            </div>
+          <div className="lg:col-span-6 border-b lg:border-b-0 lg:border-r border-white/15">
+            <SessionPicker
+              dateOptions={dateOptions}
+              selectedDate={selectedDate}
+              onSelectDate={setSelectedDate}
+              selectedTime={selectedTime}
+              onSelectTime={setSelectedTime}
+              isCustomDate={isCustomDate}
+              onToggleCustomDate={() => setIsCustomDate(!isCustomDate)}
+              minDateStr={minDateStr}
+              viewMonth={viewMonth}
+              viewYear={viewYear}
+              onPrevMonth={handlePrevMonth}
+              onNextMonth={handleNextMonth}
+            />
           </div>
 
-          {/* Right Column: User Information Form */}
-          <div className="lg:col-span-6 p-6 sm:p-10 flex flex-col justify-between space-y-8 bg-[#080d16]">
-            <div>
-              <span className="text-xs font-semibold tracking-[2px] uppercase text-white/50 font-mono">
-                02 / YOUR INFORMATION
-              </span>
-              <h3 className="text-2xl sm:text-4xl font-bold text-white tracking-tight mt-2">
-                Tell us about your business
-              </h3>
-              <p className="text-xs sm:text-sm text-white/50 font-normal mt-2">
-                We&apos;ll use your information only to follow up about your request.
-              </p>
-
-              {formSubmitted ? (
-                <div className="p-8 my-8 border border-brand/50 bg-brand/10 rounded-sm text-center space-y-3">
-                  <span className="text-brand font-semibold text-base block font-mono">
-                    REQUEST RECEIVED
-                  </span>
-                  <p className="text-sm text-white/80">
-                    Thank you. We have penciled in <strong>{selectedDate} Oct at {selectedTime} (Africa/Cairo)</strong>. Our team will follow up via email shortly.
-                  </p>
-                </div>
-              ) : (
-                <form onSubmit={handleSubmit} className="space-y-5 mt-8">
-                  {/* Row 1: Name & Business */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-white/70">Name</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="John Doe"
-                        className="w-full bg-[#05070a] border border-white/20 rounded-sm px-4 py-3 text-sm text-white placeholder:text-white/30 focus-visible:outline-2 focus-visible:outline-brand focus:border-brand transition-colors"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-white/70">Business / Company</label>
-                      <input
-                        type="text"
-                        required
-                        placeholder="Acme Corp"
-                        className="w-full bg-[#05070a] border border-white/20 rounded-sm px-4 py-3 text-sm text-white placeholder:text-white/30 focus-visible:outline-2 focus-visible:outline-brand focus:border-brand transition-colors"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Row 2: Email & Phone */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-white/70">Email</label>
-                      <input
-                        type="email"
-                        required
-                        placeholder="john@company.com"
-                        className="w-full bg-[#05070a] border border-white/20 rounded-sm px-4 py-3 text-sm text-white placeholder:text-white/30 focus-visible:outline-2 focus-visible:outline-brand focus:border-brand transition-colors"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-medium text-white/70">Phone</label>
-                      <input
-                        type="tel"
-                        placeholder="+20 100 000 0000"
-                        className="w-full bg-[#05070a] border border-white/20 rounded-sm px-4 py-3 text-sm text-white placeholder:text-white/30 focus-visible:outline-2 focus-visible:outline-brand focus:border-brand transition-colors"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Textarea */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium text-white/70">
-                      Tell us briefly about your problem
-                    </label>
-                    <textarea
-                      rows={4}
-                      placeholder="What would you like to solve or improve?"
-                      className="w-full bg-[#05070a] border border-white/20 rounded-sm px-4 py-3 text-sm text-white placeholder:text-white/30 focus-visible:outline-2 focus-visible:outline-brand focus:border-brand transition-colors resize-none"
-                    />
-                  </div>
-
-                  {/* Submit Button */}
-                  <div className="pt-2">
-                    <button
-                      type="submit"
-                      className="w-full flex items-center justify-center gap-3 bg-brand hover:bg-brand/90 text-[#1C2633] font-semibold text-xs sm:text-sm tracking-[2px] uppercase py-4 rounded-sm transition-colors shadow-sm cursor-pointer"
-                    >
-                      <span>SCHEDULE CONVERSATION</span>
-                      <span className="text-base leading-none">↗</span>
-                    </button>
-                  </div>
-                </form>
-              )}
-            </div>
+          {/* Right Column: User Information Form or Confirmed State */}
+          <div className="lg:col-span-6 p-6 sm:p-10 flex flex-col justify-between space-y-8 bg-[#080d16] h-full">
+            {confirmedBooking ? (
+              <BookingConfirmed
+                booking={confirmedBooking}
+                onBookAnother={handleBookAnother}
+              />
+            ) : (
+              <BookingForm
+                selectedDate={selectedDate}
+                selectedTime={selectedTime}
+                name={name}
+                setName={setName}
+                company={company}
+                setCompany={setCompany}
+                email={email}
+                setEmail={setEmail}
+                phone={phone}
+                setPhone={setPhone}
+                notes={notes}
+                setNotes={setNotes}
+                onSubmit={handleSubmit}
+              />
+            )}
           </div>
         </div>
       </div>

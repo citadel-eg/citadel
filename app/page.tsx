@@ -1,7 +1,6 @@
 import { Header } from "@/components/Header";
 import { HeroBillboard } from "@/components/HeroBillboard";
 import { Statements } from "@/components/Statements";
-import { HeroMain } from "@/components/HeroMain";
 import { BusinessFirst } from "@/components/BusinessFirst";
 import { ProblemSection } from "@/components/ProblemSection";
 import { WhatWeBuild } from "@/components/WhatWeBuild";
@@ -22,11 +21,8 @@ export default function Home() {
         {/* Billboard Hero: "SYSTEMS THAT MAKE YOUR BUSINESS STRONGER." */}
         <HeroBillboard />
 
-        {/* 01-07 Alternating Principles & 3D Model Areas */}
+        {/* 01-08 Pinned Interactive 3D Architecture Journey (ends with STRONG SYSTEMS. SUSTAINABLE GROWTH.) */}
         <Statements />
-
-        {/* Value Proposition Hero & Citadel Tower Showcase */}
-        <HeroMain />
 
         {/* 02 — Business First Staircase Architecture */}
         <BusinessFirst />

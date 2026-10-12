@@ -41,7 +41,9 @@ export function HeroMain() {
         <div>
           <Citadel3DPlaceholder
             label="3D CITADEL TOWER SHOWCASE"
-            heightClass="h-[380px] sm:h-[480px] lg:h-[520px]"
+            phase="all"
+            showControls={true}
+            heightClass="h-[420px] sm:h-[500px] lg:h-[540px]"
           />
         </div>
       </div>

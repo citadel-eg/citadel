@@ -44,10 +44,13 @@
 @layer base {
   html {
     font-family: var(--font-sans);
+    height: auto;
   }
   body {
     background-color: #05070a;
     color: var(--color-fg-inverse);
+    height: auto;
+    min-height: 100%;
   }
 
   /* Lenis smooth scroll recommended styles */
