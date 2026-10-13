@@ -2,10 +2,12 @@
 
 import React, { useRef } from "react";
 import Image from "next/image";
-import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
+import { gsap, useGSAP } from "@/lib/gsap";
+import { motion } from "@/lib/motion";
 
 export function CaseStudy() {
   const sectionRef = useRef<HTMLElement>(null);
+  const mockupRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
@@ -17,17 +19,16 @@ export function CaseStudy() {
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         gsap.set("[data-animate='case-mockup']", {
           opacity: 0,
-          y: 24,
-          scale: 0.98,
+          y: motion.distance,
+          scale: 0.96,
         });
-        gsap.set(breakdownSteps, { opacity: 0, x: 16 });
+        gsap.set(breakdownSteps, { opacity: 0, x: 20 });
 
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: "top 85%",
-            once: true,
-            fastScrollEnd: true,
+            start: motion.scrollStart,
+            toggleActions: "play reverse play reverse",
           },
         });
 
@@ -35,39 +36,39 @@ export function CaseStudy() {
         tl.fromTo(
           "[data-animate='header-num']",
           { opacity: 0, x: -12 },
-          { opacity: 1, x: 0, duration: 0.25, ease: "power2.out" },
+          { opacity: 1, x: 0, duration: motion.duration.base, ease: motion.ease.out },
           0,
         );
         tl.fromTo(
           "[data-animate='header-line']",
           { scaleX: 0 },
-          { scaleX: 1, duration: 0.28, ease: "power2.out" },
+          { scaleX: 1, duration: 0.32, ease: motion.ease.out },
           0.02,
         );
         tl.fromTo(
           "[data-animate='header-title']",
           { opacity: 0, x: 10 },
-          { opacity: 1, x: 0, duration: 0.25, ease: "power2.out" },
+          { opacity: 1, x: 0, duration: motion.duration.base, ease: motion.ease.out },
           0.04,
         );
 
         // 2. Heading
         tl.fromTo(
           "[data-animate='headline']",
-          { opacity: 0, y: 18 },
-          { opacity: 1, y: 0, duration: 0.38, ease: "power3.out" },
+          { opacity: 0, y: motion.distanceSm },
+          { opacity: 1, y: 0, duration: 0.5, ease: motion.ease.emphasis },
           0.04,
         );
 
-        // 3. Mockup Image Showcase
+        // 3. Mockup Image Showcase entrance
         tl.to(
           "[data-animate='case-mockup']",
           {
             opacity: 1,
             y: 0,
             scale: 1,
-            duration: 0.42,
-            ease: "power3.out",
+            duration: 0.55,
+            ease: motion.ease.emphasis,
           },
           0.08,
         );
@@ -75,9 +76,9 @@ export function CaseStudy() {
         // 4. Breakdown title
         tl.fromTo(
           "[data-animate='case-title']",
-          { opacity: 0, y: 14 },
-          { opacity: 1, y: 0, duration: 0.32, ease: "power2.out" },
-          0.12,
+          { opacity: 0, y: motion.distanceSm },
+          { opacity: 1, y: 0, duration: 0.4, ease: motion.ease.out },
+          0.14,
         );
 
         // 5. Breakdown Steps
@@ -87,12 +88,26 @@ export function CaseStudy() {
             {
               opacity: 1,
               x: 0,
-              duration: 0.35,
-              ease: "power2.out",
-              stagger: 0.08,
+              duration: 0.45,
+              ease: motion.ease.out,
+              stagger: 0.1,
             },
             0.18,
           );
+        }
+
+        // 6. Restrained scrub parallax on mockup
+        if (mockupRef.current && sectionRef.current) {
+          gsap.to(mockupRef.current, {
+            scrollTrigger: {
+              trigger: sectionRef.current,
+              start: "top bottom",
+              end: "bottom top",
+              scrub: true,
+            },
+            y: -16,
+            ease: "none",
+          });
         }
       });
 
@@ -102,19 +117,16 @@ export function CaseStudy() {
           { opacity: 0 },
           {
             opacity: 1,
-            duration: 0.25,
-            stagger: 0.03,
+            duration: motion.duration.fast,
+            stagger: motion.staggerFast,
             scrollTrigger: {
               trigger: sectionRef.current,
-              start: "top 85%",
-              once: true,
-              fastScrollEnd: true,
+              start: motion.scrollStart,
+              toggleActions: "play reverse play reverse",
             },
           },
         );
       });
-
-      ScrollTrigger.refresh();
 
       return () => {
         mm.revert();
@@ -164,14 +176,16 @@ export function CaseStudy() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           {/* Left Column: Visual Mockup Showcase */}
           <div
+            ref={mockupRef}
             data-animate="case-mockup"
-            className="lg:col-span-6 relative rounded-md border border-white/15 overflow-hidden bg-[#070b12] group opacity-0 shadow-[0_0_30px_rgba(0,0,0,0.5)]"
+            className="lg:col-span-6 relative rounded-md border border-white/15 overflow-hidden bg-[#070b12] group opacity-0 shadow-[0_0_30px_rgba(0,0,0,0.5)] will-change-transform"
           >
             <div className="relative aspect-4/3 sm:aspect-16/11 w-full overflow-hidden">
               <Image
                 src="/galaxy-store.png"
                 alt="Galaxy Store Case Study - Dashboard and website preview"
                 fill
+                sizes="(max-width: 1024px) 100vw, 50vw"
                 className="object-cover object-center transition-transform duration-700 group-hover:scale-105"
                 priority
               />

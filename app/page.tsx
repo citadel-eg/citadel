@@ -1,6 +1,7 @@
+import { IntroProvider } from "@/lib/intro-context";
+import { CitadelPreloader } from "@/components/CitadelPreloader";
 import { Header } from "@/components/Header";
-import { HeroBillboard } from "@/components/HeroBillboard";
-import { Statements } from "@/components/Statements";
+import { HeroStatements } from "@/components/HeroStatements";
 import { BusinessFirst } from "@/components/BusinessFirst";
 import { ProblemSection } from "@/components/ProblemSection";
 import { WhatWeBuild } from "@/components/WhatWeBuild";
@@ -12,17 +13,18 @@ import { FooterCTA } from "@/components/FooterCTA";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#05070a] text-white flex flex-col font-sans selection:bg-brand selection:text-[#1C2633]">
-      {/* Top Navigation */}
-      <Header />
+    <IntroProvider>
+      {/* Full-Screen Cinematic Architectural Preloader */}
+      <CitadelPreloader />
+
+      <div className="min-h-screen bg-[#05070a] text-white flex flex-col font-sans selection:bg-brand selection:text-[#1C2633]">
+        {/* Top Navigation */}
+        <Header />
 
       {/* Main Content Layout */}
       <main className="flex-1 flex flex-col">
-        {/* Billboard Hero: "SYSTEMS THAT MAKE YOUR BUSINESS STRONGER." */}
-        <HeroBillboard />
-
-        {/* 01-08 Pinned Interactive 3D Architecture Journey (ends with STRONG SYSTEMS. SUSTAINABLE GROWTH.) */}
-        <Statements />
+        {/* Pinned 3D Citadel Architecture Journey: Hero Billboard seamlessly flowing into 01-08 Architecture Journey with 1 unified 3D model */}
+        <HeroStatements />
 
         {/* 02 — Business First Staircase Architecture */}
         <BusinessFirst />
@@ -49,5 +51,6 @@ export default function Home() {
       {/* Grand CTA & Watermark Footer */}
       <FooterCTA />
     </div>
+  </IntroProvider>
   );
 }

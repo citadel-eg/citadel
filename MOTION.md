@@ -84,7 +84,7 @@ export function Reveal({ children }: { children: React.ReactNode }) {
 
 ## 6. Rules
 
-- Use `once: true` on ScrollTrigger reveals unless scrubbing is required.
+- Use `toggleActions: "play reverse play reverse"` on ScrollTrigger reveals so animations replay when scrolling back into view, unless continuous scrubbing is used.
 - Avoid `scrub` and pinning on mobile unless tested; keep it for one hero or showcase at most.
 - Set initial hidden state with `gsap.from`/`gsap.set` inside `useGSAP`, not in CSS, to avoid permanently hidden content if JS fails. If flash of content is a problem, hide with `opacity-0` only on elements that animate and guarantee they are revealed.
 - Call `ScrollTrigger.refresh()` after images or fonts change layout (Next.js: after `next/image` loads or on `document.fonts.ready`).

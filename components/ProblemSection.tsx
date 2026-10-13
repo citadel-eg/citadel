@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
+import { gsap, useGSAP } from "@/lib/gsap";
 import { motion } from "@/lib/motion";
 
 export function ProblemSection() {
@@ -80,13 +80,12 @@ export function ProblemSection() {
         // Set initial hidden states immediately to guarantee clean initial load
         gsap.set(cardsList, {
           opacity: 0,
-          y: 20,
+          y: motion.distance,
           scale: 0.98,
         });
         gsap.set("[data-animate='card-icon']", {
           opacity: 0,
-          scale: 0.75,
-          rotate: -6,
+          scale: 0.8,
         });
         gsap.set("[data-animate='card-divider']", {
           scaleX: 0,
@@ -95,21 +94,20 @@ export function ProblemSection() {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: "top 85%",
-            once: true,
-            fastScrollEnd: true,
+            start: motion.scrollStart,
+            toggleActions: "play reverse play reverse",
           },
         });
 
-        // 1. Header marker: fast snap in
+        // 1. Header marker: crisp reveal
         tl.fromTo(
           "[data-animate='header-num']",
           { opacity: 0, x: -12 },
           {
             opacity: 1,
             x: 0,
-            duration: 0.25,
-            ease: "power2.out",
+            duration: motion.duration.base,
+            ease: motion.ease.out,
           },
           0,
         );
@@ -118,8 +116,8 @@ export function ProblemSection() {
           { scaleX: 0 },
           {
             scaleX: 1,
-            duration: 0.28,
-            ease: "power2.out",
+            duration: 0.32,
+            ease: motion.ease.out,
           },
           0.02,
         );
@@ -129,8 +127,8 @@ export function ProblemSection() {
           {
             opacity: 1,
             x: 0,
-            duration: 0.25,
-            ease: "power2.out",
+            duration: motion.duration.base,
+            ease: motion.ease.out,
           },
           0.04,
         );
@@ -138,12 +136,12 @@ export function ProblemSection() {
         // 2. Section Heading & Quote: immediate punchy lift
         tl.fromTo(
           "[data-animate='headline']",
-          { opacity: 0, y: 18 },
+          { opacity: 0, y: motion.distanceSm },
           {
             opacity: 1,
             y: 0,
-            duration: 0.38,
-            ease: "power3.out",
+            duration: 0.5,
+            ease: motion.ease.emphasis,
           },
           0.04,
         );
@@ -153,13 +151,13 @@ export function ProblemSection() {
           {
             opacity: 1,
             x: 0,
-            duration: 0.35,
-            ease: "power2.out",
+            duration: 0.4,
+            ease: motion.ease.out,
           },
           0.08,
         );
 
-        // 3. 3 Structured Cards: snappy staggered pop
+        // 3. 3 Structured Diagnostic Cards: sequential architectural reveal
         if (cardsList.length) {
           tl.to(
             cardsList,
@@ -167,11 +165,11 @@ export function ProblemSection() {
               opacity: 1,
               y: 0,
               scale: 1,
-              duration: 0.4,
-              ease: "power3.out",
-              stagger: 0.06,
+              duration: 0.45,
+              ease: motion.ease.emphasis,
+              stagger: motion.stagger,
             },
-            0.08,
+            0.1,
           );
         }
 
@@ -181,23 +179,22 @@ export function ProblemSection() {
           {
             opacity: 1,
             scale: 1,
-            rotate: 0,
-            duration: 0.32,
-            ease: "power3.out",
-            stagger: 0.06,
+            duration: 0.35,
+            ease: motion.ease.out,
+            stagger: motion.stagger,
           },
-          0.14,
+          0.16,
         );
 
         tl.to(
           "[data-animate='card-divider']",
           {
             scaleX: 1,
-            duration: 0.3,
-            ease: "power2.out",
-            stagger: 0.06,
+            duration: 0.35,
+            ease: motion.ease.out,
+            stagger: motion.stagger,
           },
-          0.16,
+          0.18,
         );
 
         // 5. Footer Sub-line
@@ -207,10 +204,10 @@ export function ProblemSection() {
           {
             opacity: 1,
             x: 0,
-            duration: 0.28,
-            ease: "power2.out",
+            duration: motion.duration.base,
+            ease: motion.ease.out,
           },
-          0.22,
+          0.24,
         );
       });
 
@@ -220,19 +217,16 @@ export function ProblemSection() {
           { opacity: 0 },
           {
             opacity: 1,
-            duration: 0.25,
-            stagger: 0.03,
+            duration: motion.duration.fast,
+            stagger: motion.staggerFast,
             scrollTrigger: {
               trigger: sectionRef.current,
-              start: "top 85%",
-              once: true,
-              fastScrollEnd: true,
+              start: motion.scrollStart,
+              toggleActions: "play reverse play reverse",
             },
           },
         );
       });
-
-      ScrollTrigger.refresh();
 
       return () => {
         mm.revert();

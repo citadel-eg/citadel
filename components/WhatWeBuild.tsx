@@ -2,7 +2,7 @@
 
 import React, { useRef } from "react";
 import Link from "next/link";
-import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
+import { gsap, useGSAP } from "@/lib/gsap";
 
 interface ServiceRow {
   id: string;
@@ -34,23 +34,39 @@ const services: ServiceRow[] = [
   },
 ];
 
+const ROW_INDENT_CLASSES = ["lg:ml-1", "lg:ml-4 xl:ml-7", "lg:ml-8 xl:ml-14"];
+
 export function WhatWeBuild() {
   const sectionRef = useRef<HTMLElement>(null);
 
   useGSAP(
     () => {
-      const rows = gsap.utils.toArray<HTMLElement>("[data-animate='service-row']");
+      const rows = gsap.utils.toArray<HTMLElement>(
+        "[data-animate='service-row']",
+      );
+      const titles = gsap.utils.toArray<HTMLElement>(
+        "[data-animate='service-title']",
+      );
+      const descs = gsap.utils.toArray<HTMLElement>(
+        "[data-animate='service-desc']",
+      );
+      const arrows = gsap.utils.toArray<HTMLElement>(
+        "[data-animate='service-arrow']",
+      );
+
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        gsap.set(rows, { opacity: 0, y: 20 });
+        gsap.set(rows, { opacity: 0 });
+        gsap.set(titles, { yPercent: 110 });
+        gsap.set(descs, { opacity: 0, x: 16 });
+        gsap.set(arrows, { opacity: 0, scale: 0.8 });
 
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: sectionRef.current,
             start: "top 85%",
-            once: true,
-            fastScrollEnd: true,
+            toggleActions: "play reverse play reverse",
           },
         });
 
@@ -74,20 +90,51 @@ export function WhatWeBuild() {
           0.04,
         );
 
-        // 2. Service rows stagger in
-        if (rows.length) {
-          tl.to(
-            rows,
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.42,
-              ease: "power3.out",
-              stagger: 0.08,
-            },
-            0.08,
-          );
-        }
+        // 2. Service rows reveal: fade container, slide masked title, reveal description and arrow
+        tl.to(
+          rows,
+          {
+            opacity: 1,
+            duration: 0.35,
+            stagger: 0.1,
+          },
+          0.08,
+        );
+
+        tl.to(
+          titles,
+          {
+            yPercent: 0,
+            duration: 0.55,
+            ease: "power3.out",
+            stagger: 0.1,
+          },
+          0.1,
+        );
+
+        tl.to(
+          descs,
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.45,
+            ease: "power2.out",
+            stagger: 0.1,
+          },
+          0.16,
+        );
+
+        tl.to(
+          arrows,
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 0.35,
+            ease: "power2.out",
+            stagger: 0.1,
+          },
+          0.2,
+        );
       });
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
@@ -101,14 +148,11 @@ export function WhatWeBuild() {
             scrollTrigger: {
               trigger: sectionRef.current,
               start: "top 85%",
-              once: true,
-              fastScrollEnd: true,
+              toggleActions: "play reverse play reverse",
             },
           },
         );
       });
-
-      ScrollTrigger.refresh();
 
       return () => {
         mm.revert();
@@ -146,23 +190,31 @@ export function WhatWeBuild() {
 
         {/* Big Rows List */}
         <div className="divide-y divide-white/15 border-y border-white/15">
-          {services.map((item) => (
+          {services.map((item, i) => (
             <Link
               key={item.id}
               href="#schedule"
               data-animate="service-row"
-              className="group block py-10 md:py-14 transition-colors duration-300 hover:bg-white/2 opacity-0"
+              className="group block py-10 md:py-14 transition-colors duration-300 hover:bg-white/2 pr-4"
             >
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center justify-between">
-                {/* Big Title */}
-                <div className="lg:col-span-6">
-                  <h3 className="text-4xl sm:text-6xl md:text-7xl lg:text-[78px] font-bold text-white tracking-tight leading-none group-hover:text-brand transition-colors duration-300">
+              <div
+                className={`grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center justify-between ${ROW_INDENT_CLASSES[i] ?? ""}`}
+              >
+                {/* Big Title with overflow mask */}
+                <div className="lg:col-span-6 overflow-hidden py-1">
+                  <h3
+                    data-animate="service-title"
+                    className="text-4xl sm:text-6xl md:text-7xl lg:text-[78px] font-bold text-white tracking-tight leading-none group-hover:text-brand transition-colors duration-300 will-change-transform"
+                  >
                     {item.title}
                   </h3>
                 </div>
 
                 {/* Description & Tags */}
-                <div className="lg:col-span-5 flex flex-col space-y-4">
+                <div
+                  data-animate="service-desc"
+                  className="lg:col-span-5 flex flex-col space-y-4"
+                >
                   <p className="text-sm sm:text-base text-white/70 font-normal leading-relaxed">
                     {item.description}
                   </p>
@@ -179,7 +231,10 @@ export function WhatWeBuild() {
                 </div>
 
                 {/* Arrow Icon */}
-                <div className="lg:col-span-1 flex justify-end">
+                <div
+                  data-animate="service-arrow"
+                  className="lg:col-span-1 flex justify-end"
+                >
                   <span className="text-2xl text-white/40 group-hover:text-brand group-hover:translate-x-1 group-hover:-translate-y-1 transition-all duration-300">
                     ↗
                   </span>

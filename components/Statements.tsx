@@ -94,6 +94,7 @@ export function Statements() {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const activeIndexRef = useRef(0);
+  const prevIndexRef = useRef(0);
 
   // Programmatic slide transition on phase indicator click
   const goToSlide = (targetIndex: number) => {
@@ -155,6 +156,7 @@ export function Statements() {
           const clamped = Math.min(0.9999, Math.max(0, self.progress));
           const newIndex = Math.floor(clamped * totalSlides);
           if (newIndex !== activeIndexRef.current) {
+            prevIndexRef.current = activeIndexRef.current;
             setActiveIndex(newIndex);
             activeIndexRef.current = newIndex;
           }
@@ -171,53 +173,61 @@ export function Statements() {
     { scope: containerRef },
   );
 
-  // Snappy, subtle GSAP entrance on phase change (no elastic bounce or layout shift)
+  // Directional, mechanical architectural transition on phase change
   useEffect(() => {
+    const direction = activeIndex >= prevIndexRef.current ? 1 : -1;
+    prevIndexRef.current = activeIndex;
+
     const mm = gsap.matchMedia();
     mm.add("(prefers-reduced-motion: no-preference)", () => {
-      const tl = gsap.timeline();
+      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
+      // Mechanical odometer watermark slide
       if (watermarkRef.current) {
         tl.fromTo(
           watermarkRef.current,
-          { opacity: 0, y: 15 },
-          { opacity: 1, y: 0, duration: 0.28, ease: "power2.out" },
+          { opacity: 0, y: direction * 40 },
+          { opacity: 1, y: 0, duration: 0.38, ease: "power3.out" },
           0,
         );
       }
 
+      // Tag reveal
       if (tagRef.current) {
         tl.fromTo(
           tagRef.current,
-          { opacity: 0, x: -8 },
-          { opacity: 1, x: 0, duration: 0.22, ease: "power2.out" },
+          { opacity: 0, x: -14 },
+          { opacity: 1, x: 0, duration: 0.28, ease: "power2.out" },
           0.02,
         );
       }
 
+      // Title reveal
       if (titleRef.current) {
         tl.fromTo(
           titleRef.current,
-          { opacity: 0, y: 12 },
-          { opacity: 1, y: 0, duration: 0.28, ease: "power2.out" },
+          { opacity: 0, y: direction * 18 },
+          { opacity: 1, y: 0, duration: 0.35, ease: "power3.out" },
           0.04,
         );
       }
 
+      // Description reveal
       if (descRef.current) {
         tl.fromTo(
           descRef.current,
-          { opacity: 0, y: 10 },
-          { opacity: 1, y: 0, duration: 0.26, ease: "power2.out" },
+          { opacity: 0, y: direction * 14 },
+          { opacity: 1, y: 0, duration: 0.32, ease: "power2.out" },
           0.06,
         );
       }
 
+      // CTA reveal
       if (ctaRef.current) {
         tl.fromTo(
           ctaRef.current,
-          { opacity: 0, y: 10 },
-          { opacity: 1, y: 0, duration: 0.26, ease: "power2.out" },
+          { opacity: 0, y: 12 },
+          { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" },
           0.08,
         );
       }
@@ -340,6 +350,8 @@ export function Statements() {
               borderless={true}
               enablePhaseHover={false}
               enablePhaseClick={false}
+              lockRotationX={true}
+              lockRotationY={false}
               spinOnPhase8={true}
               heightClass="h-[420px] sm:h-[500px] lg:h-[560px]"
             />

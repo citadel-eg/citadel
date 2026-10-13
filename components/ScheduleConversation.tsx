@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
+import { gsap, useGSAP } from "@/lib/gsap";
+import { motion } from "@/lib/motion";
 import {
   ConfirmedBooking,
   DEFAULT_BUSINESS_DAYS,
@@ -132,16 +133,23 @@ export function ScheduleConversation() {
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         gsap.set("[data-animate='schedule-card']", {
           opacity: 0,
-          y: 24,
+          y: motion.distance,
           scale: 0.99,
+        });
+        gsap.set("[data-animate='session-picker']", {
+          opacity: 0,
+          x: -12,
+        });
+        gsap.set("[data-animate='booking-form-col']", {
+          opacity: 0,
+          x: 12,
         });
 
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: "top 85%",
-            once: true,
-            fastScrollEnd: true,
+            start: motion.scrollStart,
+            toggleActions: "play reverse play reverse",
           },
         });
 
@@ -149,33 +157,56 @@ export function ScheduleConversation() {
         tl.fromTo(
           "[data-animate='header-num']",
           { opacity: 0, x: -12 },
-          { opacity: 1, x: 0, duration: 0.25, ease: "power2.out" },
+          { opacity: 1, x: 0, duration: motion.duration.base, ease: motion.ease.out },
           0,
         );
         tl.fromTo(
           "[data-animate='header-line']",
           { scaleX: 0 },
-          { scaleX: 1, duration: 0.28, ease: "power2.out" },
+          { scaleX: 1, duration: 0.32, ease: motion.ease.out },
           0.02,
         );
         tl.fromTo(
           "[data-animate='header-title']",
           { opacity: 0, x: 10 },
-          { opacity: 1, x: 0, duration: 0.25, ease: "power2.out" },
+          { opacity: 1, x: 0, duration: motion.duration.base, ease: motion.ease.out },
           0.04,
         );
 
-        // 2. Schedule Card entrance
+        // 2. Schedule Card chassis entrance
         tl.to(
           "[data-animate='schedule-card']",
           {
             opacity: 1,
             y: 0,
             scale: 1,
-            duration: 0.42,
-            ease: "power3.out",
+            duration: 0.5,
+            ease: motion.ease.emphasis,
           },
           0.08,
+        );
+
+        // 3. Left & Right columns sequence
+        tl.to(
+          "[data-animate='session-picker']",
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.38,
+            ease: motion.ease.out,
+          },
+          0.16,
+        );
+
+        tl.to(
+          "[data-animate='booking-form-col']",
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.38,
+            ease: motion.ease.out,
+          },
+          0.22,
         );
       });
 
@@ -185,19 +216,16 @@ export function ScheduleConversation() {
           { opacity: 0 },
           {
             opacity: 1,
-            duration: 0.25,
-            stagger: 0.03,
+            duration: motion.duration.fast,
+            stagger: motion.staggerFast,
             scrollTrigger: {
               trigger: sectionRef.current,
-              start: "top 85%",
-              once: true,
-              fastScrollEnd: true,
+              start: motion.scrollStart,
+              toggleActions: "play reverse play reverse",
             },
           },
         );
       });
-
-      ScrollTrigger.refresh();
 
       return () => {
         mm.revert();
@@ -239,7 +267,10 @@ export function ScheduleConversation() {
           className="border border-white/15 rounded-md overflow-hidden grid grid-cols-1 lg:grid-cols-12 bg-[#070b12] opacity-0 shadow-[0_0_40px_rgba(0,0,0,0.4)]"
         >
           {/* Left Column: Date & Time Picker */}
-          <div className="lg:col-span-6 border-b lg:border-b-0 lg:border-r border-white/15">
+          <div
+            data-animate="session-picker"
+            className="lg:col-span-6 border-b lg:border-b-0 lg:border-r border-white/15"
+          >
             <SessionPicker
               dateOptions={dateOptions}
               selectedDate={selectedDate}
@@ -257,7 +288,10 @@ export function ScheduleConversation() {
           </div>
 
           {/* Right Column: User Information Form or Confirmed State */}
-          <div className="lg:col-span-6 p-6 sm:p-10 flex flex-col justify-between space-y-8 bg-[#080d16] h-full">
+          <div
+            data-animate="booking-form-col"
+            className="lg:col-span-6 p-6 sm:p-10 flex flex-col justify-between space-y-8 bg-[#080d16] h-full"
+          >
             {confirmedBooking ? (
               <BookingConfirmed
                 booking={confirmedBooking}

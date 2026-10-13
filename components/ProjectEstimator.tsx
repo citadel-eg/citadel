@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
+import { gsap, useGSAP } from "@/lib/gsap";
+import { motion } from "@/lib/motion";
 
 type NeedType =
   | "Business System"
@@ -168,6 +169,7 @@ const estimateMatrix: Record<NeedType, Record<ScopeType, ScopeSpec>> = {
 
 export function ProjectEstimator() {
   const sectionRef = useRef<HTMLElement>(null);
+  const timelineValueRef = useRef<HTMLSpanElement>(null);
   const [selectedNeed, setSelectedNeed] = useState<NeedType>("Business System");
   const [selectedScope, setSelectedScope] = useState<ScopeType>("Medium");
   const [selectedHave, setSelectedHave] = useState<HaveType[]>([
@@ -218,6 +220,19 @@ export function ProjectEstimator() {
     return currentSpec.baseWeeks;
   };
 
+  const timelineWeeks = getTimelineWeeks();
+
+  // Gentle numeric roll animation on timeline value update
+  useEffect(() => {
+    if (timelineValueRef.current) {
+      gsap.fromTo(
+        timelineValueRef.current,
+        { opacity: 0.35, y: -4 },
+        { opacity: 1, y: 0, duration: motion.duration.fast, ease: motion.ease.out }
+      );
+    }
+  }, [timelineWeeks]);
+
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
@@ -226,7 +241,7 @@ export function ProjectEstimator() {
         // Initial hidden states
         gsap.set("[data-animate='estimator-box']", {
           opacity: 0,
-          y: 24,
+          y: motion.distance,
           scale: 0.99,
         });
         gsap.set("[data-animate='estimator-step']", {
@@ -241,9 +256,8 @@ export function ProjectEstimator() {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: "top 85%",
-            once: true,
-            fastScrollEnd: true,
+            start: motion.scrollStart,
+            toggleActions: "play reverse play reverse",
           },
         });
 
@@ -251,27 +265,27 @@ export function ProjectEstimator() {
         tl.fromTo(
           "[data-animate='header-num']",
           { opacity: 0, x: -12 },
-          { opacity: 1, x: 0, duration: 0.25, ease: "power2.out" },
+          { opacity: 1, x: 0, duration: motion.duration.base, ease: motion.ease.out },
           0,
         );
         tl.fromTo(
           "[data-animate='header-line']",
           { scaleX: 0 },
-          { scaleX: 1, duration: 0.28, ease: "power2.out" },
+          { scaleX: 1, duration: 0.32, ease: motion.ease.out },
           0.02,
         );
         tl.fromTo(
           "[data-animate='header-title']",
           { opacity: 0, x: 10 },
-          { opacity: 1, x: 0, duration: 0.25, ease: "power2.out" },
+          { opacity: 1, x: 0, duration: motion.duration.base, ease: motion.ease.out },
           0.04,
         );
 
         // 2. Headline
         tl.fromTo(
           "[data-animate='headline']",
-          { opacity: 0, y: 18 },
-          { opacity: 1, y: 0, duration: 0.38, ease: "power3.out" },
+          { opacity: 0, y: motion.distanceSm },
+          { opacity: 1, y: 0, duration: 0.5, ease: motion.ease.emphasis },
           0.04,
         );
 
@@ -282,8 +296,8 @@ export function ProjectEstimator() {
             opacity: 1,
             y: 0,
             scale: 1,
-            duration: 0.42,
-            ease: "power3.out",
+            duration: 0.5,
+            ease: motion.ease.emphasis,
           },
           0.08,
         );
@@ -294,11 +308,11 @@ export function ProjectEstimator() {
           {
             opacity: 1,
             x: 0,
-            duration: 0.32,
-            ease: "power2.out",
-            stagger: 0.06,
+            duration: 0.38,
+            ease: motion.ease.out,
+            stagger: 0.08,
           },
-          0.14,
+          0.16,
         );
 
         // 5. Staggered right column items
@@ -307,11 +321,11 @@ export function ProjectEstimator() {
           {
             opacity: 1,
             x: 0,
-            duration: 0.32,
-            ease: "power2.out",
-            stagger: 0.05,
+            duration: 0.35,
+            ease: motion.ease.out,
+            stagger: 0.06,
           },
-          0.18,
+          0.2,
         );
       });
 
@@ -321,19 +335,16 @@ export function ProjectEstimator() {
           { opacity: 0 },
           {
             opacity: 1,
-            duration: 0.25,
-            stagger: 0.03,
+            duration: motion.duration.fast,
+            stagger: motion.staggerFast,
             scrollTrigger: {
               trigger: sectionRef.current,
-              start: "top 85%",
-              once: true,
-              fastScrollEnd: true,
+              start: motion.scrollStart,
+              toggleActions: "play reverse play reverse",
             },
           },
         );
       });
-
-      ScrollTrigger.refresh();
 
       return () => {
         mm.revert();
@@ -565,7 +576,10 @@ export function ProjectEstimator() {
                     )}
                 </div>
                 <div className="flex items-baseline gap-3 pt-1">
-                  <span className="text-4xl sm:text-5xl font-extrabold text-brand font-mono tracking-tight">
+                  <span
+                    ref={timelineValueRef}
+                    className="text-4xl sm:text-5xl font-extrabold text-brand font-mono tracking-tight"
+                  >
                     {getTimelineWeeks()}
                   </span>
                   <span className="text-lg text-white/60 font-medium">

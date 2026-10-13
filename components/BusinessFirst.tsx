@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useEffect, useRef } from "react";
-import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
+import { useRef } from "react";
+import { gsap, useGSAP } from "@/lib/gsap";
+import { motion } from "@/lib/motion";
 
 interface StepItem {
   id: string;
@@ -27,6 +27,9 @@ export function BusinessFirst() {
       const items = gsap.utils.toArray<HTMLElement>(
         "[data-animate='step-item']",
       );
+      const connectors = gsap.utils.toArray<HTMLElement>(
+        "[data-animate='step-connector']",
+      );
 
       const mm = gsap.matchMedia();
 
@@ -34,9 +37,8 @@ export function BusinessFirst() {
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: "top 85%",
-            once: true,
-            fastScrollEnd: true,
+            start: motion.scrollStart,
+            toggleActions: "play reverse play reverse",
           },
         });
 
@@ -44,33 +46,33 @@ export function BusinessFirst() {
         tl.fromTo(
           "[data-animate='header-num']",
           { opacity: 0, x: -16 },
-          { opacity: 1, x: 0, duration: 0.3, ease: "power2.out" },
+          { opacity: 1, x: 0, duration: motion.duration.base, ease: motion.ease.out },
           0,
         );
         tl.fromTo(
           "[data-animate='header-line']",
           { scaleX: 0 },
-          { scaleX: 1, duration: 0.35, ease: "power2.out" },
+          { scaleX: 1, duration: 0.35, ease: motion.ease.out },
           0.04,
         );
         tl.fromTo(
           "[data-animate='header-title']",
           { opacity: 0, x: 12 },
-          { opacity: 1, x: 0, duration: 0.3, ease: "power2.out" },
+          { opacity: 1, x: 0, duration: motion.duration.base, ease: motion.ease.out },
           0.08,
         );
 
         // 2. Left column headline & paragraph
         tl.fromTo(
           "[data-animate='headline']",
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.45, ease: "power3.out" },
+          { opacity: 0, y: motion.distance },
+          { opacity: 1, y: 0, duration: 0.55, ease: motion.ease.emphasis },
           0.1,
         );
         tl.fromTo(
           "[data-animate='paragraph']",
-          { opacity: 0, y: 16 },
-          { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
+          { opacity: 0, y: motion.distanceSm },
+          { opacity: 1, y: 0, duration: motion.duration.base, ease: motion.ease.out },
           0.18,
         );
 
@@ -80,8 +82,8 @@ export function BusinessFirst() {
             items,
             {
               opacity: 0,
-              x: 24,
-              y: 16,
+              x: 28,
+              y: 14,
               scale: 0.98,
             },
             {
@@ -89,11 +91,30 @@ export function BusinessFirst() {
               x: 0,
               y: 0,
               scale: 1,
-              duration: 0.38,
-              ease: "power2.out",
+              duration: 0.45,
+              ease: motion.ease.out,
               stagger: 0.08,
             },
             0.18,
+          );
+        }
+
+        // 4. Downward arrow connectors reveal in synchronization
+        if (connectors.length) {
+          tl.fromTo(
+            connectors,
+            {
+              opacity: 0,
+              scaleY: 0,
+            },
+            {
+              opacity: 1,
+              scaleY: 1,
+              duration: 0.3,
+              ease: motion.ease.out,
+              stagger: 0.08,
+            },
+            0.24,
           );
         }
       });
@@ -104,19 +125,16 @@ export function BusinessFirst() {
           { opacity: 0 },
           {
             opacity: 1,
-            duration: 0.3,
-            stagger: 0.04,
+            duration: motion.duration.fast,
+            stagger: motion.staggerFast,
             scrollTrigger: {
               trigger: sectionRef.current,
-              start: "top 85%",
-              once: true,
-              fastScrollEnd: true,
+              start: motion.scrollStart,
+              toggleActions: "play reverse play reverse",
             },
           },
         );
       });
-
-      ScrollTrigger.refresh();
 
       return () => {
         mm.revert();
@@ -124,6 +142,7 @@ export function BusinessFirst() {
     },
     { scope: sectionRef },
   );
+
 
   return (
     <section
@@ -215,8 +234,9 @@ export function BusinessFirst() {
                   {/* Down Arrow connector between steps */}
                   {index < steps.length - 1 && (
                     <div
+                      data-animate="step-connector"
                       style={{ marginLeft: `${indentRem + 1.25}rem` }}
-                      className="text-white/40 text-lg font-mono transition-colors duration-200 py-0.5"
+                      className="text-white/40 text-lg font-mono transition-colors duration-200 py-0.5 origin-top"
                     >
                       ↓
                     </div>

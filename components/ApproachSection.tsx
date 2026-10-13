@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useRef } from "react";
-import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
+import { gsap, useGSAP } from "@/lib/gsap";
+import { motion } from "@/lib/motion";
 
 interface LayerItem {
   id: string;
@@ -64,24 +65,19 @@ export function ApproachSection() {
         // Set initial hidden states immediately to guarantee clean initial load
         gsap.set(columns, {
           opacity: 0,
-          y: 24,
+          y: motion.distanceLg,
           scale: 0.98,
         });
         gsap.set("[data-animate='layer-icon']", {
           opacity: 0,
-          scale: 0.75,
-          rotate: -6,
-        });
-        gsap.set("[data-animate='step-segment']", {
-          scaleX: 0,
+          scale: 0.8,
         });
 
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: sectionRef.current,
-            start: "top 85%",
-            once: true,
-            fastScrollEnd: true,
+            start: motion.scrollStart,
+            toggleActions: "play reverse play reverse",
           },
         });
 
@@ -92,8 +88,8 @@ export function ApproachSection() {
           {
             opacity: 1,
             x: 0,
-            duration: 0.25,
-            ease: "power2.out",
+            duration: motion.duration.base,
+            ease: motion.ease.out,
           },
           0,
         );
@@ -102,8 +98,8 @@ export function ApproachSection() {
           { scaleX: 0 },
           {
             scaleX: 1,
-            duration: 0.28,
-            ease: "power2.out",
+            duration: 0.32,
+            ease: motion.ease.out,
           },
           0.02,
         );
@@ -113,8 +109,8 @@ export function ApproachSection() {
           {
             opacity: 1,
             x: 0,
-            duration: 0.25,
-            ease: "power2.out",
+            duration: motion.duration.base,
+            ease: motion.ease.out,
           },
           0.04,
         );
@@ -122,12 +118,12 @@ export function ApproachSection() {
         // 2. Headline & Philosophy quote
         tl.fromTo(
           "[data-animate='headline']",
-          { opacity: 0, y: 18 },
+          { opacity: 0, y: motion.distanceSm },
           {
             opacity: 1,
             y: 0,
-            duration: 0.38,
-            ease: "power3.out",
+            duration: 0.5,
+            ease: motion.ease.emphasis,
           },
           0.04,
         );
@@ -137,13 +133,13 @@ export function ApproachSection() {
           {
             opacity: 1,
             x: 0,
-            duration: 0.35,
-            ease: "power2.out",
+            duration: 0.4,
+            ease: motion.ease.out,
           },
           0.08,
         );
 
-        // 3. Ascending Columns: snappy cascade rising from left to right
+        // 3. Ascending Columns: architectural rising cascade from left to right
         if (columns.length) {
           tl.to(
             columns,
@@ -151,11 +147,11 @@ export function ApproachSection() {
               opacity: 1,
               y: 0,
               scale: 1,
-              duration: 0.42,
-              ease: "power3.out",
-              stagger: 0.07,
+              duration: 0.55,
+              ease: motion.ease.emphasis,
+              stagger: 0.08,
             },
-            0.08,
+            0.1,
           );
         }
 
@@ -165,25 +161,12 @@ export function ApproachSection() {
           {
             opacity: 1,
             scale: 1,
-            rotate: 0,
-            duration: 0.3,
-            ease: "power3.out",
+            duration: 0.35,
+            ease: motion.ease.out,
             stagger: 0.06,
           },
-          0.16,
+          0.2,
         );
-
-        tl.to(
-          "[data-animate='step-segment']",
-          {
-            scaleX: 1,
-            duration: 0.32,
-            ease: "power2.out",
-            stagger: 0.03,
-          },
-          0.18,
-        );
-
       });
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
@@ -192,19 +175,16 @@ export function ApproachSection() {
           { opacity: 0 },
           {
             opacity: 1,
-            duration: 0.25,
-            stagger: 0.03,
+            duration: motion.duration.fast,
+            stagger: motion.staggerFast,
             scrollTrigger: {
               trigger: sectionRef.current,
-              start: "top 85%",
-              once: true,
-              fastScrollEnd: true,
+              start: motion.scrollStart,
+              toggleActions: "play reverse play reverse",
             },
           },
         );
       });
-
-      ScrollTrigger.refresh();
 
       return () => {
         mm.revert();

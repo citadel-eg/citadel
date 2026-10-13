@@ -3,25 +3,36 @@
 import React, { useRef } from "react";
 import Link from "next/link";
 import { CitadelLogo, CitadelMark } from "./CitadelLogo";
-import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
+import { gsap, useGSAP } from "@/lib/gsap";
+import { motion } from "@/lib/motion";
 
 export function FooterCTA() {
   const footerRef = useRef<HTMLElement>(null);
+  const watermarkRef = useRef<HTMLDivElement>(null);
 
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        gsap.set("[data-animate='footer-headline']", { opacity: 0, y: 24 });
-        gsap.set("[data-animate='footer-button']", { opacity: 0, y: 16 });
+        gsap.set("[data-animate='footer-headline']", {
+          opacity: 0,
+          y: motion.distance,
+        });
+        gsap.set("[data-animate='footer-button']", {
+          opacity: 0,
+          y: motion.distanceSm,
+        });
+        gsap.set("[data-animate='footer-bar']", {
+          opacity: 0,
+          y: 10,
+        });
 
         const tl = gsap.timeline({
           scrollTrigger: {
             trigger: footerRef.current,
-            start: "top 85%",
-            once: true,
-            fastScrollEnd: true,
+            start: motion.scrollStart,
+            toggleActions: "play reverse play reverse",
           },
         });
 
@@ -30,8 +41,8 @@ export function FooterCTA() {
           {
             opacity: 1,
             y: 0,
-            duration: 0.42,
-            ease: "power3.out",
+            duration: 0.55,
+            ease: motion.ease.emphasis,
           },
           0,
         );
@@ -41,11 +52,36 @@ export function FooterCTA() {
           {
             opacity: 1,
             y: 0,
-            duration: 0.35,
-            ease: "power2.out",
+            duration: 0.4,
+            ease: motion.ease.out,
           },
-          0.1,
+          0.12,
         );
+
+        tl.to(
+          "[data-animate='footer-bar']",
+          {
+            opacity: 1,
+            y: 0,
+            duration: 0.35,
+            ease: motion.ease.out,
+          },
+          0.2,
+        );
+
+        // Architectural watermark subtle parallax depth
+        if (watermarkRef.current && footerRef.current) {
+          gsap.to(watermarkRef.current, {
+            scrollTrigger: {
+              trigger: footerRef.current,
+              start: "top bottom",
+              end: "bottom bottom",
+              scrub: true,
+            },
+            y: -32,
+            ease: "none",
+          });
+        }
       });
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
@@ -54,19 +90,16 @@ export function FooterCTA() {
           { opacity: 0 },
           {
             opacity: 1,
-            duration: 0.25,
-            stagger: 0.03,
+            duration: motion.duration.fast,
+            stagger: motion.staggerFast,
             scrollTrigger: {
               trigger: footerRef.current,
-              start: "top 85%",
-              once: true,
-              fastScrollEnd: true,
+              start: motion.scrollStart,
+              toggleActions: "play reverse play reverse",
             },
           },
         );
       });
-
-      ScrollTrigger.refresh();
 
       return () => {
         mm.revert();
@@ -80,8 +113,11 @@ export function FooterCTA() {
       ref={footerRef}
       className="relative w-full overflow-hidden bg-[#05070a] pt-20 pb-12 border-t border-white/15"
     >
-      {/* Giant Watermark Silhouette of Citadel Tower in bottom right */}
-      <div className="absolute -right-15 md:right-10 bottom-16 pointer-events-none opacity-[0.035] select-none">
+      {/* Giant Watermark Silhouette of Citadel Tower in bottom right with subtle scrub parallax */}
+      <div
+        ref={watermarkRef}
+        className="absolute -right-15 md:right-10 bottom-16 pointer-events-none opacity-[0.035] select-none will-change-transform"
+      >
         <CitadelMark className="w-[380px] h-[480px] sm:w-[500px] sm:h-[640px] text-white" />
       </div>
 
@@ -109,7 +145,10 @@ export function FooterCTA() {
         </div>
       </div>
       {/* Bottom Bar */}
-      <div className="pt-8 px-20 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-6">
+      <div
+        data-animate="footer-bar"
+        className="pt-8 px-6 sm:px-10 md:px-20 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-6"
+      >
         <Link href="/" className="hover:opacity-90 transition-opacity">
           <CitadelLogo />
         </Link>
