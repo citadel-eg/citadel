@@ -14,6 +14,19 @@ export function SmoothScrollProvider({
     // Add lenis classes to html element
     document.documentElement.classList.add("lenis", "lenis-smooth");
 
+    const initialHash = typeof window !== "undefined" ? window.location.hash : "";
+
+    // Prevent browser and ScrollTrigger from auto-scrolling to past arbitrary positions on reload (when no hash is targeted)
+    if (typeof window !== "undefined") {
+      if ("scrollRestoration" in window.history) {
+        window.history.scrollRestoration = "manual";
+      }
+      ScrollTrigger.clearScrollMemory("manual");
+      if (!initialHash || initialHash === "#") {
+        window.scrollTo(0, 0);
+      }
+    }
+
     const lenis = new Lenis({
       duration: 1.0,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -25,12 +38,47 @@ export function SmoothScrollProvider({
       autoResize: true,
     });
 
+    let userHasScrolled = false;
+    const markUserScrolled = () => {
+      userHasScrolled = true;
+    };
+    window.addEventListener("wheel", markUserScrolled, { passive: true });
+    window.addEventListener("touchmove", markUserScrolled, { passive: true });
+    window.addEventListener("pointerdown", markUserScrolled, { passive: true });
+
+    const scrollToHash = (immediate = true) => {
+      const hash = window.location.hash;
+      if (hash && hash !== "#") {
+        try {
+          const target = document.querySelector(hash);
+          if (target) {
+            lenis.scrollTo(target as HTMLElement, { offset: -80, immediate });
+            return true;
+          }
+        } catch {
+          // ignore invalid query selector
+        }
+      }
+      return false;
+    };
+
+    if (initialHash && initialHash !== "#") {
+      if (!scrollToHash(true)) {
+        requestAnimationFrame(() => scrollToHash(true));
+      }
+    } else {
+      lenis.scrollTo(0, { immediate: true });
+    }
+
     // Synchronize Lenis scroll position with GSAP ScrollTrigger
     lenis.on("scroll", ScrollTrigger.update);
 
     // Keep Lenis scroll limit in sync whenever ScrollTrigger recalculates
     const onScrollTriggerRefresh = () => {
       lenis.resize();
+      if (!userHasScrolled && window.location.hash) {
+        scrollToHash(true);
+      }
     };
     ScrollTrigger.addEventListener("refresh", onScrollTriggerRefresh);
 
@@ -58,6 +106,9 @@ export function SmoothScrollProvider({
       document.fonts.ready.then(() => {
         lenis.resize();
         ScrollTrigger.refresh();
+        if (!userHasScrolled && window.location.hash) {
+          scrollToHash(true);
+        }
       });
     }
 
@@ -66,6 +117,9 @@ export function SmoothScrollProvider({
       setTimeout(() => {
         lenis.resize();
         ScrollTrigger.refresh();
+        if (!userHasScrolled && window.location.hash) {
+          scrollToHash(true);
+        }
       }, delay),
     );
 
@@ -77,19 +131,46 @@ export function SmoothScrollProvider({
       if (href && href.startsWith("#")) {
         if (href === "#") {
           e.preventDefault();
+          window.history.pushState(null, "", window.location.pathname);
           lenis.scrollTo(0, { duration: 1.0 });
           return;
         }
         const element = document.querySelector(href);
         if (element) {
           e.preventDefault();
+          window.history.pushState(null, "", href);
           lenis.scrollTo(element as HTMLElement, { offset: -80, duration: 1.0 });
         }
       }
     };
     document.addEventListener("click", handleAnchorClick);
 
+    const handleHashChange = () => {
+      if (window.location.hash) {
+        scrollToHash(false);
+      } else {
+        lenis.scrollTo(0, { duration: 1.0 });
+      }
+    };
+    window.addEventListener("hashchange", handleHashChange);
+
+    const handleVisibility = () => {
+      if (!document.hidden) {
+        lenis.resize();
+        ScrollTrigger.refresh();
+        if (!userHasScrolled && window.location.hash) {
+          scrollToHash(true);
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
     return () => {
+      window.removeEventListener("wheel", markUserScrolled);
+      window.removeEventListener("touchmove", markUserScrolled);
+      window.removeEventListener("pointerdown", markUserScrolled);
+      window.removeEventListener("hashchange", handleHashChange);
+      document.removeEventListener("visibilitychange", handleVisibility);
       refreshTimers.forEach(clearTimeout);
       if (resizeObserver) {
         resizeObserver.disconnect();

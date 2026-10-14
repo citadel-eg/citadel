@@ -127,6 +127,7 @@ export function IntroProvider({ children }: { children: React.ReactNode }) {
 
   const heroEntranceTriggerRef = useRef<(() => void) | null>(null);
   const headerEntranceTriggerRef = useRef<(() => void) | null>(null);
+  const entranceTriggeredRef = useRef(false);
   const finalizingRef = useRef(false);
   const progressTweenRef = useRef<gsap.core.Tween | null>(null);
 
@@ -265,21 +266,23 @@ export function IntroProvider({ children }: { children: React.ReactNode }) {
   // Register entrance trigger functions
   const registerHeroEntrance = useCallback((trigger: () => void) => {
     heroEntranceTriggerRef.current = trigger;
-    if (phaseRef.current === "COMPLETE") {
+    if (phaseRef.current === "COMPLETE" && !entranceTriggeredRef.current) {
+      entranceTriggeredRef.current = true;
       trigger();
     }
   }, []);
 
   const registerHeaderEntrance = useCallback((trigger: () => void) => {
     headerEntranceTriggerRef.current = trigger;
-    if (phaseRef.current === "COMPLETE") {
+    if (phaseRef.current === "COMPLETE" && !entranceTriggeredRef.current) {
       trigger();
     }
   }, []);
 
   // Called when exit transition starts
   const startExitTransition = useCallback(() => {
-    if (phaseRef.current === "EXITING" || phaseRef.current === "COMPLETE") return;
+    if (entranceTriggeredRef.current) return;
+    entranceTriggeredRef.current = true;
     setPhase("EXITING");
     phaseRef.current = "EXITING";
 
@@ -293,8 +296,21 @@ export function IntroProvider({ children }: { children: React.ReactNode }) {
 
   // Called when exit transition finishes
   const markComplete = useCallback(() => {
+    // Only invoke if exit transition was skipped (e.g. background tab)
+    if (!entranceTriggeredRef.current) {
+      entranceTriggeredRef.current = true;
+      if (heroEntranceTriggerRef.current) {
+        heroEntranceTriggerRef.current();
+      }
+      if (headerEntranceTriggerRef.current) {
+        headerEntranceTriggerRef.current();
+      }
+    }
+
     setPhase("COMPLETE");
     phaseRef.current = "COMPLETE";
+    setProgress(100);
+    progressRef.current = 100;
 
     // Unlock scrolling
     if (typeof document !== "undefined") {
@@ -414,7 +430,24 @@ export function IntroProvider({ children }: { children: React.ReactNode }) {
       }
     }, 6000);
 
+    // Background tab recovery: if user switches to another tab and comes back after 1.5s, immediately finalize intro
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+        const elapsed = now - (mountTimeRef.current || now);
+        if (elapsed > 1500 && phaseRef.current !== "COMPLETE") {
+          gatesRef.current.modelReady = true;
+          gatesRef.current.fontsReady = true;
+          advanceToReady();
+          startExitTransition();
+          markComplete();
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       if (readyTimerRef.current) clearTimeout(readyTimerRef.current);
       clearTimeout(fontTimeout);
       clearTimeout(lenisClearTimer);

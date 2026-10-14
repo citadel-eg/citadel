@@ -157,11 +157,21 @@ export function CitadelPreloader() {
 
     // Safety fallback timer: ensures preloader completes even if animation is interrupted
     const fallbackTimer = setTimeout(() => {
+      startExitTransition();
       markComplete();
     }, 1500);
 
+    const onVisibility = () => {
+      if (!document.hidden) {
+        startExitTransition();
+        markComplete();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
     return () => {
       clearTimeout(fallbackTimer);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [phase, startExitTransition, markComplete]);
 

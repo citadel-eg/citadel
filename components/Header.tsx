@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Link from "next/link";
 import { CitadelLogo } from "./CitadelLogo";
 import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
@@ -9,19 +9,50 @@ import { useIntro } from "@/lib/intro-context";
 
 export function Header() {
   const headerRef = useRef<HTMLElement>(null);
+  const headerTlRef = useRef<gsap.core.Timeline | null>(null);
   const [activeSection, setActiveSection] = useState<string>("home");
   const { isIntroActive, registerHeaderEntrance } = useIntro();
+
+  // Watch isIntroActive and visibility changes to ensure header is revealed
+  useEffect(() => {
+    if (!isIntroActive && headerTlRef.current) {
+      if (headerTlRef.current.progress() === 0) {
+        headerTlRef.current.play();
+      }
+    }
+  }, [isIntroActive]);
+
+  useEffect(() => {
+    const handleVis = () => {
+      if (
+        document.visibilityState === "visible" &&
+        !isIntroActive &&
+        headerTlRef.current
+      ) {
+        if (
+          headerTlRef.current.paused() ||
+          headerTlRef.current.progress() < 1
+        ) {
+          headerTlRef.current.play();
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVis);
+    return () => document.removeEventListener("visibilitychange", handleVis);
+  }, [isIntroActive]);
 
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
-      let handleVisibilityChange: (() => void) | null = null;
+      let idlePulseTimer: ReturnType<typeof setInterval> | null = null;
+
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         // Master Header Entrance Timeline coordinated with preloader exit
         const headerTl = gsap.timeline({
           paused: isIntroActive,
           defaults: { ease: motion.ease.out },
         });
+        headerTlRef.current = headerTl;
 
         // 1. Header bar glides in from y: -16
         headerTl.fromTo(
@@ -65,21 +96,16 @@ export function Header() {
         );
 
         registerHeaderEntrance(() => {
-          headerTl.restart();
+          if (headerTl.progress() === 0) {
+            headerTl.play();
+          } else if (headerTl.paused()) {
+            headerTl.play();
+          }
         });
 
-        if (!isIntroActive) {
+        if (!isIntroActive && headerTl.progress() === 0) {
           headerTl.progress(1);
         }
-
-        handleVisibilityChange = () => {
-          if (document.visibilityState === "visible") {
-            if (!isIntroActive) {
-              headerTl.play();
-            }
-          }
-        };
-        document.addEventListener("visibilitychange", handleVisibilityChange);
 
         // Interactive hover micro-animation: cascading gold wave across the 8 Citadel tiers
         const logoLink = document.querySelector("[data-logo-link]");
@@ -127,7 +153,6 @@ export function Header() {
         };
 
         // Periodic ambient shimmer animation: repeats every 6 seconds to keep the logo alive
-        let idlePulseTimer: ReturnType<typeof setInterval> | null = null;
         const playPeriodicShimmer = () => {
           if (isHovering || document.hidden) return;
           if (!logoTiers || logoTiers.length === 0) return;
@@ -193,6 +218,16 @@ export function Header() {
             }
           },
         });
+
+        return () => {
+          if (idlePulseTimer) {
+            clearInterval(idlePulseTimer);
+          }
+          if (logoLink) {
+            logoLink.removeEventListener("mouseenter", handleMouseEnter);
+            logoLink.removeEventListener("mouseleave", handleMouseLeave);
+          }
+        };
       });
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
@@ -206,17 +241,6 @@ export function Header() {
       });
 
       return () => {
-        if (handleVisibilityChange) {
-          document.removeEventListener(
-            "visibilitychange",
-            handleVisibilityChange,
-          );
-        }
-        const logoLink = document.querySelector("[data-logo-link]");
-        if (logoLink) {
-          // Remove listener targets during unmount
-          logoLink.replaceWith(logoLink.cloneNode(true));
-        }
         mm.revert();
       };
     },
@@ -235,10 +259,28 @@ export function Header() {
       ref={headerRef}
       className="sticky top-0 z-50 w-full bg-[#05070a]/90 backdrop-blur-md border-b border-white/10"
     >
-      <div className="max-w-[1440px] mx-auto h-20 px-6 sm:px-10 flex items-center justify-between relative">
+      <div className="max-w-360 mx-auto h-20 px-6 sm:px-10 flex items-center justify-between relative">
         <Link
           href="/"
           data-logo-link
+          onClick={(e) => {
+            if (
+              typeof window !== "undefined" &&
+              (window.location.pathname === "/" || window.location.pathname === "")
+            ) {
+              e.preventDefault();
+              if (window.location.hash) {
+                window.history.pushState(null, "", "/");
+              }
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              const lenis = (window as any).__lenis;
+              if (lenis && typeof lenis.scrollTo === "function") {
+                lenis.scrollTo(0, { duration: 1.0 });
+              } else {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+            }
+          }}
           className="flex items-center gap-2 group transition-opacity hover:opacity-95"
         >
           <CitadelLogo />
@@ -258,7 +300,7 @@ export function Header() {
               >
                 {link.label}
                 {isActive && (
-                  <span className="absolute bottom-[-18px] left-0 right-0 h-[2px] bg-brand rounded-full transition-all duration-300" />
+                  <span className="absolute -bottom-4.5 left-0 right-0 h-0.5 bg-brand rounded-full transition-all duration-300" />
                 )}
               </Link>
             );

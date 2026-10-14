@@ -99,6 +99,7 @@ export function HeroStatements() {
   const modelTransitionRef = useRef<HTMLDivElement>(null);
   const particlesRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<ScrollTrigger | null>(null);
+  const entranceTlRef = useRef<gsap.core.Timeline | null>(null);
 
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const [activeModelPhase, setActiveModelPhase] = useState<number | "all">(
@@ -107,6 +108,34 @@ export function HeroStatements() {
   const [isHero, setIsHero] = useState(true);
 
   const { isIntroActive, reportModelReady, registerHeroEntrance } = useIntro();
+
+  // Watch isIntroActive and tab visibility so hero entrance is guaranteed to play
+  useEffect(() => {
+    if (!isIntroActive && entranceTlRef.current) {
+      if (entranceTlRef.current.progress() === 0) {
+        entranceTlRef.current.play();
+      }
+    }
+  }, [isIntroActive]);
+
+  useEffect(() => {
+    const handleVis = () => {
+      if (
+        document.visibilityState === "visible" &&
+        !isIntroActive &&
+        entranceTlRef.current
+      ) {
+        if (
+          entranceTlRef.current.progress() < 1 &&
+          entranceTlRef.current.paused()
+        ) {
+          entranceTlRef.current.play();
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVis);
+    return () => document.removeEventListener("visibilitychange", handleVis);
+  }, [isIntroActive]);
 
   const activeSlideIndexRef = useRef(0);
   const prevSlideIndexRef = useRef(0);
@@ -153,6 +182,7 @@ export function HeroStatements() {
           paused: isIntroActive,
           defaults: { ease: motion.ease.emphasis },
         });
+        entranceTlRef.current = entranceTl;
 
         // Background starry particles fade in
         if (particlesRef.current) {
@@ -206,8 +236,16 @@ export function HeroStatements() {
         );
 
         registerHeroEntrance(() => {
-          entranceTl.restart();
+          if (entranceTl.progress() === 0) {
+            entranceTl.play();
+          } else if (entranceTl.paused()) {
+            entranceTl.play();
+          }
         });
+
+        if (!isIntroActive && entranceTl.progress() === 0) {
+          entranceTl.progress(1);
+        }
 
         // Helper to compute exact pixel offset to center the 3D model and position it below the hero headline
         const getHeroOffset = () => {
