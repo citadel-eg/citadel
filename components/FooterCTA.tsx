@@ -116,12 +116,12 @@ export function FooterCTA() {
       {/* Giant Watermark Silhouette of Citadel Tower in bottom right with subtle scrub parallax */}
       <div
         ref={watermarkRef}
-        className="absolute -right-15 md:right-10 bottom-16 pointer-events-none opacity-[0.035] select-none will-change-transform"
+        className="absolute -right-8 sm:right-4 md:right-10 lg:right-16 inset-y-0 flex items-center justify-end pointer-events-none opacity-[0.035] select-none will-change-transform"
       >
-        <CitadelMark className="w-[380px] h-[480px] sm:w-[500px] sm:h-[640px] text-white" />
+        <CitadelMark className="h-full w-auto aspect-3/4 text-white" />
       </div>
 
-      <div className="max-w-[1353px] mx-auto px-6 sm:px-10 relative z-10 flex flex-col justify-between space-y-24">
+      <div className="px-6 sm:px-10 md:px-20 relative z-10 flex flex-col justify-between space-y-24">
         {/* Big Centered Headline & Action */}
         <div className="flex flex-col items-center justify-center text-center space-y-8 py-12 md:py-20">
           <h2
@@ -135,7 +135,7 @@ export function FooterCTA() {
 
           <div data-animate="footer-button" className="pt-4">
             <Link
-              href="#schedule"
+              href="/contact"
               className="inline-flex items-center gap-4 bg-brand hover:bg-brand/90 text-[#1C2633] px-8 py-4 rounded-sm font-semibold text-xs sm:text-sm tracking-[2px] uppercase transition-colors shadow-sm"
             >
               <span>START A CONVERSATION</span>

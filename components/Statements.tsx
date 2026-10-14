@@ -255,8 +255,8 @@ export function Statements() {
       style={{ height: `${statements.length * 70}vh` }}
     >
       {/* Sticky Pinned Stage taking full viewport height */}
-      <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden px-6 sm:px-10 py-8 md:py-12">
-        <div className="max-w-[1353px] mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden px-6 sm:px-10 md:px-20 py-8 md:py-12">
+        <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
           {/* Left Column Text & Action matching HeroMain */}
           <div className="relative flex flex-col items-start space-y-6 md:space-y-8">
             {/* Ambient Watermark Number */}

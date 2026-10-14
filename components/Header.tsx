@@ -1,16 +1,17 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { CitadelLogo } from "./CitadelLogo";
-import { gsap, ScrollTrigger, useGSAP } from "@/lib/gsap";
+import { gsap, useGSAP } from "@/lib/gsap";
 import { motion } from "@/lib/motion";
 import { useIntro } from "@/lib/intro-context";
 
 export function Header() {
   const headerRef = useRef<HTMLElement>(null);
   const headerTlRef = useRef<gsap.core.Timeline | null>(null);
-  const [activeSection, setActiveSection] = useState<string>("home");
+  const pathname = usePathname();
   const { isIntroActive, registerHeaderEntrance } = useIntro();
 
   // Watch isIntroActive and visibility changes to ensure header is revealed
@@ -43,8 +44,16 @@ export function Header() {
 
   useGSAP(
     () => {
+      const q = gsap.utils.selector(headerRef);
       const mm = gsap.matchMedia();
       let idlePulseTimer: ReturnType<typeof setInterval> | null = null;
+
+      const logoLink = q("[data-logo-link]")[0] as HTMLElement | undefined;
+      const logoTiers = q("[data-logo-tier]") as unknown as SVGPathElement[];
+      const logoMark = q("[data-logo-mark]")[0] as unknown as SVGSVGElement | undefined;
+      const logoTitle = q("[data-logo-text='title']");
+      const logoSub = q("[data-logo-text='sub']");
+      const logoText = q("[data-logo-text]");
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         // Master Header Entrance Timeline coordinated with preloader exit
@@ -62,36 +71,39 @@ export function Header() {
             opacity: 1,
             y: 0,
             duration: motion.duration.base,
+            clearProps: "transform",
           },
           0,
         );
 
-        // 2. Citadel Logo Mark 8 tiers illuminate in rapid sequence from foundation (1) to crown (8)
+        // 2. Citadel Logo Mark 8 tiers illuminate in sequence from foundation (1) to crown (8)
+        // Illuminating via gold-to-white fill cleanly preserves vector geometry without scaling SVG paths
         headerTl.fromTo(
-          "[data-logo-tier]",
-          { opacity: 0, scaleX: 0.25, transformOrigin: "center center" },
+          logoTiers,
+          { opacity: 0, fill: "#C4A254" },
           {
             opacity: 1,
-            scaleX: 1,
+            fill: "#FFFFFF",
             duration: 0.35,
             stagger: 0.035,
             ease: "power2.out",
+            clearProps: "all",
           },
           0.08,
         );
 
         // 3. Citadel Typography reveals with crisp tracking
         headerTl.fromTo(
-          "[data-logo-text='title']",
+          logoTitle,
           { opacity: 0, x: -10 },
-          { opacity: 1, x: 0, duration: 0.4, ease: "power2.out" },
+          { opacity: 1, x: 0, duration: 0.4, ease: "power2.out", clearProps: "transform" },
           0.18,
         );
 
         headerTl.fromTo(
-          "[data-logo-text='sub']",
+          logoSub,
           { opacity: 0, x: -8 },
-          { opacity: 1, x: 0, duration: 0.35, ease: "power2.out" },
+          { opacity: 1, x: 0, duration: 0.35, ease: "power2.out", clearProps: "transform" },
           0.26,
         );
 
@@ -108,10 +120,6 @@ export function Header() {
         }
 
         // Interactive hover micro-animation: cascading gold wave across the 8 Citadel tiers
-        const logoLink = document.querySelector("[data-logo-link]");
-        const logoTiers = document.querySelectorAll("[data-logo-tier]");
-        const logoMark = document.querySelector("[data-logo-mark]");
-
         let isHovering = false;
         const handleMouseEnter = () => {
           if (isHovering) return;
@@ -132,6 +140,7 @@ export function Header() {
               ease: "power1.out",
               onComplete: () => {
                 isHovering = false;
+                gsap.set(logoTiers, { fill: "#FFFFFF", clearProps: "transform" });
               },
             });
           }
@@ -139,17 +148,20 @@ export function Header() {
 
         const handleMouseLeave = () => {
           if (logoMark) {
-            gsap.to(logoMark, { y: 0, duration: 0.25, ease: "power2.out" });
+            gsap.to(logoMark, { y: 0, duration: 0.25, ease: "power2.out", clearProps: "transform" });
           }
-          gsap.to(logoTiers, {
-            fill: "#FFFFFF",
-            duration: 0.25,
-            ease: "power1.out",
-            overwrite: "auto",
-            onComplete: () => {
-              isHovering = false;
-            },
-          });
+          if (logoTiers.length > 0) {
+            gsap.to(logoTiers, {
+              fill: "#FFFFFF",
+              duration: 0.25,
+              ease: "power1.out",
+              overwrite: "auto",
+              clearProps: "transform",
+              onComplete: () => {
+                isHovering = false;
+              },
+            });
+          }
         };
 
         // Periodic ambient shimmer animation: repeats every 6 seconds to keep the logo alive
@@ -159,9 +171,7 @@ export function Header() {
 
           gsap.to(logoTiers, {
             fill: "#C4A254",
-            scaleX: 1.1,
-            transformOrigin: "center center",
-            duration: 0.16,
+            duration: 0.18,
             stagger: {
               each: 0.035,
               from: "start",
@@ -171,7 +181,7 @@ export function Header() {
             ease: "power1.out",
             onComplete: () => {
               if (!isHovering) {
-                gsap.set(logoTiers, { fill: "#FFFFFF", scaleX: 1 });
+                gsap.set(logoTiers, { fill: "#FFFFFF", clearProps: "transform" });
               }
             },
           });
@@ -185,43 +195,10 @@ export function Header() {
           logoLink.addEventListener("mouseleave", handleMouseLeave);
         }
 
-        // Active section tracking
-        const sections: { id: string; target: string }[] = [
-          { id: "company", target: "#company" },
-          { id: "services", target: "#services" },
-          { id: "work", target: "#work" },
-        ];
-
-        sections.forEach(({ id, target }) => {
-          const el = document.querySelector(target);
-          if (el) {
-            ScrollTrigger.create({
-              trigger: el,
-              start: "top 60%",
-              end: "bottom 40%",
-              onToggle: (self) => {
-                if (self.isActive) {
-                  setActiveSection(id);
-                }
-              },
-            });
-          }
-        });
-
-        // Top of page triggers "home"
-        ScrollTrigger.create({
-          start: 0,
-          end: 400,
-          onToggle: (self) => {
-            if (self.isActive) {
-              setActiveSection("home");
-            }
-          },
-        });
-
         return () => {
           if (idlePulseTimer) {
             clearInterval(idlePulseTimer);
+            idlePulseTimer = null;
           }
           if (logoLink) {
             logoLink.removeEventListener("mouseenter", handleMouseEnter);
@@ -231,16 +208,20 @@ export function Header() {
       });
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
-        gsap.set(headerRef.current, { opacity: 1, y: 0 });
-        gsap.set("[data-logo-tier]", {
+        gsap.set(headerRef.current, { opacity: 1, y: 0, clearProps: "transform" });
+        gsap.set(logoTiers, {
           opacity: 1,
-          scaleX: 1,
           fill: "#FFFFFF",
+          clearProps: "all",
         });
-        gsap.set("[data-logo-text]", { opacity: 1, x: 0 });
+        gsap.set(logoText, { opacity: 1, x: 0, clearProps: "all" });
       });
 
       return () => {
+        if (idlePulseTimer) {
+          clearInterval(idlePulseTimer);
+          idlePulseTimer = null;
+        }
         mm.revert();
       };
     },
@@ -248,25 +229,37 @@ export function Header() {
   );
 
   const navLinks = [
-    { label: "Home", href: "#", key: "home" },
-    { label: "Company", href: "#company", key: "company" },
-    { label: "Services", href: "#services", key: "services" },
-    { label: "Work", href: "#work", key: "work" },
+    { label: "Home", href: "/", key: "home" },
+    { label: "Company", href: "/company", key: "company" },
+    { label: "Services", href: "/services", key: "services" },
+    { label: "Work", href: "/work", key: "work" },
   ];
+
+  const currentActive =
+    pathname === "/"
+      ? "home"
+      : pathname?.startsWith("/company")
+        ? "company"
+        : pathname?.startsWith("/services")
+          ? "services"
+          : pathname?.startsWith("/work")
+            ? "work"
+            : "";
 
   return (
     <header
       ref={headerRef}
       className="sticky top-0 z-50 w-full bg-[#05070a]/90 backdrop-blur-md border-b border-white/10"
     >
-      <div className="max-w-360 mx-auto h-20 px-6 sm:px-10 flex items-center justify-between relative">
+      <div className="h-20 px-6 sm:px-10 md:px-20 flex items-center justify-between relative">
         <Link
           href="/"
           data-logo-link
           onClick={(e) => {
             if (
               typeof window !== "undefined" &&
-              (window.location.pathname === "/" || window.location.pathname === "")
+              (window.location.pathname === "/" ||
+                window.location.pathname === "")
             ) {
               e.preventDefault();
               if (window.location.hash) {
@@ -289,7 +282,7 @@ export function Header() {
         {/* Center Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-10">
           {navLinks.map((link) => {
-            const isActive = activeSection === link.key;
+            const isActive = currentActive === link.key;
             return (
               <Link
                 key={link.label}
@@ -310,7 +303,7 @@ export function Header() {
         {/* Right CTA */}
         <div className="flex items-center gap-4">
           <Link
-            href="#schedule"
+            href="/contact"
             className="inline-flex items-center justify-center border border-white/80 hover:border-brand hover:text-brand px-5 sm:px-6 py-2.5 text-xs sm:text-sm font-semibold tracking-[2px] text-white uppercase transition-colors"
           >
             GET STARTED

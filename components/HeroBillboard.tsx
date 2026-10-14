@@ -90,7 +90,7 @@ export function HeroBillboard() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full h-[calc(100dvh-5rem)] min-h-130 max-h-[calc(100dvh-5rem)] px-6 sm:px-10 border-b border-white/10 bg-[#05070a] overflow-hidden flex flex-col items-center justify-between py-6 sm:py-8 lg:py-10"
+      className="relative w-full h-[calc(100dvh-5rem)] min-h-130 max-h-[calc(100dvh-5rem)] px-6 sm:px-10 md:px-20 border-b border-white/10 bg-[#05070a] overflow-hidden flex flex-col items-center justify-between py-6 sm:py-8 lg:py-10"
     >
       {/* Background Particles from React Bits (first section only) */}
       <div
@@ -116,7 +116,7 @@ export function HeroBillboard() {
 
       <div
         ref={contentRef}
-        className="relative z-10 max-w-[1353px] mx-auto w-full h-full flex flex-col items-center justify-between gap-4 sm:gap-6"
+        className="relative z-10 w-full h-full flex flex-col items-center justify-between gap-4 sm:gap-6"
       >
         {/* Billboard Header with Line-Masked Split Reveal */}
         <div className="shrink-0 text-center pt-2 sm:pt-4">

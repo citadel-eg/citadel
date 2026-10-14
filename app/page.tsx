@@ -1,5 +1,3 @@
-import { IntroProvider } from "@/lib/intro-context";
-import { CitadelPreloader } from "@/components/CitadelPreloader";
 import { Header } from "@/components/Header";
 import { HeroStatements } from "@/components/HeroStatements";
 import { BusinessFirst } from "@/components/BusinessFirst";
@@ -13,13 +11,9 @@ import { FooterCTA } from "@/components/FooterCTA";
 
 export default function Home() {
   return (
-    <IntroProvider>
-      {/* Full-Screen Cinematic Architectural Preloader */}
-      <CitadelPreloader />
-
-      <div className="min-h-screen bg-[#05070a] text-white flex flex-col font-sans selection:bg-brand selection:text-[#1C2633]">
-        {/* Top Navigation */}
-        <Header />
+    <div className="min-h-screen bg-[#05070a] text-white flex flex-col font-sans selection:bg-brand selection:text-[#1C2633]">
+      {/* Top Navigation */}
+      <Header />
 
       {/* Main Content Layout */}
       <main className="flex-1 flex flex-col">
@@ -27,9 +21,9 @@ export default function Home() {
         <HeroStatements />
 
         {/* 02 — Business First Staircase Architecture */}
-        <BusinessFirst />
+        <BusinessFirst sectionNumber="02" />
 
-        {/* 02 — The Real Problem 3-Card Operational Review */}
+        {/* 03 — The Real Problem 3-Card Operational Review */}
         <ProblemSection />
 
         {/* 04 — What We Build (Automation, Operations, Products) */}
@@ -51,6 +45,5 @@ export default function Home() {
       {/* Grand CTA & Watermark Footer */}
       <FooterCTA />
     </div>
-  </IntroProvider>
   );
 }

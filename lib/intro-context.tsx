@@ -8,6 +8,7 @@ import React, {
   useRef,
   useCallback,
 } from "react";
+import { usePathname } from "next/navigation";
 import { gsap } from "@/lib/gsap";
 
 export type IntroPhase =
@@ -101,9 +102,12 @@ const IntroContext = createContext<IntroContextValue | null>(null);
 const STORAGE_KEY = "citadel_intro_viewed_session";
 
 export function IntroProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isHomepage = pathname === "/" || !pathname;
+
   const [phase, setPhase] = useState<IntroPhase>("INITIALIZING");
   const [progress, setProgress] = useState(0);
-  const [isModelReady, setIsModelReady] = useState(false);
+  const [isModelReady, setIsModelReady] = useState(!isHomepage);
   const [webglDegraded, setWebglDegraded] = useState(false);
 
   const phaseRef = useRef<IntroPhase>("INITIALIZING");
@@ -121,7 +125,7 @@ export function IntroProvider({ children }: { children: React.ReactNode }) {
 
   const gatesRef = useRef({
     appHydrated: false,
-    modelReady: false,
+    modelReady: !isHomepage,
     fontsReady: false,
   });
 
@@ -220,7 +224,7 @@ export function IntroProvider({ children }: { children: React.ReactNode }) {
 
     const now = typeof performance !== "undefined" ? performance.now() : Date.now();
     const elapsed = now - (mountTimeRef.current || now);
-    const MIN_INTRO_DURATION_MS = 2200; // 2.2 seconds minimum animation duration
+    const MIN_INTRO_DURATION_MS = isHomepage ? 2200 : 1200; // 2.2s on 3D homepage, 1.2s on subpages
     const remainingForMin = Math.max(0, MIN_INTRO_DURATION_MS - elapsed);
 
     if (readyTimerRef.current) {
@@ -266,7 +270,7 @@ export function IntroProvider({ children }: { children: React.ReactNode }) {
   // Register entrance trigger functions
   const registerHeroEntrance = useCallback((trigger: () => void) => {
     heroEntranceTriggerRef.current = trigger;
-    if (phaseRef.current === "COMPLETE" && !entranceTriggeredRef.current) {
+    if (phaseRef.current === "COMPLETE") {
       entranceTriggeredRef.current = true;
       trigger();
     }
@@ -274,7 +278,7 @@ export function IntroProvider({ children }: { children: React.ReactNode }) {
 
   const registerHeaderEntrance = useCallback((trigger: () => void) => {
     headerEntranceTriggerRef.current = trigger;
-    if (phaseRef.current === "COMPLETE" && !entranceTriggeredRef.current) {
+    if (phaseRef.current === "COMPLETE") {
       trigger();
     }
   }, []);
@@ -357,6 +361,20 @@ export function IntroProvider({ children }: { children: React.ReactNode }) {
     mountTimeRef.current =
       typeof performance !== "undefined" ? performance.now() : Date.now();
 
+    // If it's a reload/hard-reload, clear the session viewed flag so the intro plays
+    try {
+      const isReload =
+        typeof performance !== "undefined" &&
+        (performance.getEntriesByType?.("navigation")?.[0] as PerformanceNavigationTiming)
+          ?.type === "reload";
+
+      if (isReload) {
+        sessionStorage.removeItem(STORAGE_KEY);
+      }
+    } catch {
+      // Ignore
+    }
+
     // Check if user already saw intro in this session (production only)
     if (process.env.NODE_ENV !== "development") {
       try {
@@ -394,6 +412,9 @@ export function IntroProvider({ children }: { children: React.ReactNode }) {
 
     // Gate 1: Client Hydration
     gatesRef.current.appHydrated = true;
+    if (!isHomepage) {
+      gatesRef.current.modelReady = true;
+    }
     queueMicrotask(() => {
       animateProgressTo(INTRO_PHASE_INFO.INITIALIZING.targetPercent, 0.3);
       evaluateGates();
@@ -486,7 +507,21 @@ export function IntroProvider({ children }: { children: React.ReactNode }) {
 export function useIntro() {
   const context = useContext(IntroContext);
   if (!context) {
-    throw new Error("useIntro must be used within an IntroProvider");
+    return {
+      phase: "COMPLETE" as IntroPhase,
+      progress: 100,
+      phaseInfo: INTRO_PHASE_INFO.READY,
+      isModelReady: true,
+      webglDegraded: false,
+      isIntroActive: false,
+      isExiting: false,
+      isComplete: true,
+      reportModelReady: () => {},
+      registerHeroEntrance: () => {},
+      registerHeaderEntrance: () => {},
+      startExitTransition: () => {},
+      markComplete: () => {},
+    };
   }
   return context;
 }

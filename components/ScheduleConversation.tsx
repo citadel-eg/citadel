@@ -15,10 +15,12 @@ import { BookingConfirmed } from "./schedule/BookingConfirmed";
 
 export function ScheduleConversation() {
   const sectionRef = useRef<HTMLElement>(null);
-  const [dateOptions, setDateOptions] =
-    useState<DateOption[]>(DEFAULT_BUSINESS_DAYS);
-  const [selectedDate, setSelectedDate] =
-    useState<DateOption>(DEFAULT_BUSINESS_DAYS[0]);
+  const [dateOptions, setDateOptions] = useState<DateOption[]>(
+    DEFAULT_BUSINESS_DAYS,
+  );
+  const [selectedDate, setSelectedDate] = useState<DateOption>(
+    DEFAULT_BUSINESS_DAYS[0],
+  );
   const [selectedTime, setSelectedTime] = useState<string>("11:30 AM");
   const [isCustomDate, setIsCustomDate] = useState(false);
   const [minDateStr, setMinDateStr] = useState<string>("2026-10-13");
@@ -39,7 +41,11 @@ export function ScheduleConversation() {
     const timer = setTimeout(() => {
       const liveDays = generateUpcomingBusinessDays(5);
       setDateOptions(liveDays);
-      setSelectedDate((prev) => (prev && liveDays.some((d) => d.rawDate === prev.rawDate) ? prev : liveDays[0]));
+      setSelectedDate((prev) =>
+        prev && liveDays.some((d) => d.rawDate === prev.rawDate)
+          ? prev
+          : liveDays[0],
+      );
 
       const tomorrow = new Date();
       tomorrow.setDate(tomorrow.getDate() + 1);
@@ -157,7 +163,12 @@ export function ScheduleConversation() {
         tl.fromTo(
           "[data-animate='header-num']",
           { opacity: 0, x: -12 },
-          { opacity: 1, x: 0, duration: motion.duration.base, ease: motion.ease.out },
+          {
+            opacity: 1,
+            x: 0,
+            duration: motion.duration.base,
+            ease: motion.ease.out,
+          },
           0,
         );
         tl.fromTo(
@@ -169,7 +180,12 @@ export function ScheduleConversation() {
         tl.fromTo(
           "[data-animate='header-title']",
           { opacity: 0, x: 10 },
-          { opacity: 1, x: 0, duration: motion.duration.base, ease: motion.ease.out },
+          {
+            opacity: 1,
+            x: 0,
+            duration: motion.duration.base,
+            ease: motion.ease.out,
+          },
           0.04,
         );
 
@@ -238,9 +254,9 @@ export function ScheduleConversation() {
     <section
       ref={sectionRef}
       id="schedule"
-      className="relative w-full py-16 md:py-24 px-6 sm:px-10 bg-[#05070a] border-b border-white/10 overflow-hidden"
+      className="relative w-full py-16 md:py-24 px-6 sm:px-10 md:px-20 bg-[#05070a] border-b border-white/10 overflow-hidden"
     >
-      <div className="max-w-[1353px] mx-auto space-y-12 md:space-y-16">
+      <div className="space-y-12 md:space-y-16">
         {/* Section Header Marker */}
         <div data-animate="header-marker" className="flex items-center gap-4">
           <span
@@ -264,7 +280,7 @@ export function ScheduleConversation() {
         {/* Dual Form Card Container */}
         <div
           data-animate="schedule-card"
-          className="border border-white/15 rounded-md overflow-hidden grid grid-cols-1 lg:grid-cols-12 bg-[#070b12] opacity-0 shadow-[0_0_40px_rgba(0,0,0,0.4)]"
+          className="border border-white/15 rounded-md overflow-hidden grid grid-cols-1 lg:grid-cols-12  opacity-0 shadow-[0_0_40px_rgba(0,0,0,0.4)]"
         >
           {/* Left Column: Date & Time Picker */}
           <div
@@ -290,7 +306,7 @@ export function ScheduleConversation() {
           {/* Right Column: User Information Form or Confirmed State */}
           <div
             data-animate="booking-form-col"
-            className="lg:col-span-6 p-6 sm:p-10 flex flex-col justify-between space-y-8 bg-[#080d16] h-full"
+            className="lg:col-span-6 p-6 sm:p-10 flex flex-col justify-between space-y-8  h-full"
           >
             {confirmedBooking ? (
               <BookingConfirmed

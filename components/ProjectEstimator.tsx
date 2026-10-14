@@ -228,7 +228,12 @@ export function ProjectEstimator() {
       gsap.fromTo(
         timelineValueRef.current,
         { opacity: 0.35, y: -4 },
-        { opacity: 1, y: 0, duration: motion.duration.fast, ease: motion.ease.out }
+        {
+          opacity: 1,
+          y: 0,
+          duration: motion.duration.fast,
+          ease: motion.ease.out,
+        },
       );
     }
   }, [timelineWeeks]);
@@ -265,7 +270,12 @@ export function ProjectEstimator() {
         tl.fromTo(
           "[data-animate='header-num']",
           { opacity: 0, x: -12 },
-          { opacity: 1, x: 0, duration: motion.duration.base, ease: motion.ease.out },
+          {
+            opacity: 1,
+            x: 0,
+            duration: motion.duration.base,
+            ease: motion.ease.out,
+          },
           0,
         );
         tl.fromTo(
@@ -277,7 +287,12 @@ export function ProjectEstimator() {
         tl.fromTo(
           "[data-animate='header-title']",
           { opacity: 0, x: 10 },
-          { opacity: 1, x: 0, duration: motion.duration.base, ease: motion.ease.out },
+          {
+            opacity: 1,
+            x: 0,
+            duration: motion.duration.base,
+            ease: motion.ease.out,
+          },
           0.04,
         );
 
@@ -357,9 +372,9 @@ export function ProjectEstimator() {
     <section
       ref={sectionRef}
       id="estimator"
-      className="relative w-full py-16 md:py-24 px-6 sm:px-10 bg-[#05070a] border-b border-white/10 overflow-hidden"
+      className="relative w-full py-16 md:py-24 px-6 sm:px-10 md:px-20 bg-[#05070a] border-b border-white/10 overflow-hidden"
     >
-      <div className="max-w-[1353px] mx-auto space-y-12 md:space-y-16">
+      <div className="space-y-12 md:space-y-16">
         {/* Section Header Marker */}
         <div data-animate="header-marker" className="flex items-center gap-4">
           <span
@@ -393,7 +408,7 @@ export function ProjectEstimator() {
         {/* Interactive Dual Box Grid */}
         <div
           data-animate="estimator-box"
-          className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch border border-white/20 rounded-md overflow-hidden bg-[#070b12] opacity-0 shadow-[0_0_40px_rgba(0,0,0,0.4)]"
+          className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch border border-white/20 rounded-md overflow-hidden  opacity-0 shadow-[0_0_40px_rgba(0,0,0,0.4)]"
         >
           {/* Left Column: Interactive Selector Choices */}
           <div className="lg:col-span-7 p-6 sm:p-10 space-y-10 border-b lg:border-b-0 lg:border-r border-white/15">
@@ -500,7 +515,7 @@ export function ProjectEstimator() {
                     >
                       <span>{have}</span>
                       <span
-                        className={`w-3.5 h-3.5 rounded-[2px] flex items-center justify-center text-[10px] font-bold transition-colors ${
+                        className={`w-3.5 h-3.5 rounded-xs flex items-center justify-center text-[10px] font-bold transition-colors ${
                           isSelected
                             ? "bg-[#1C2633] text-brand"
                             : "border border-white/30"
@@ -520,7 +535,7 @@ export function ProjectEstimator() {
           </div>
 
           {/* Right Column: Outline Sidebar */}
-          <div className="lg:col-span-5 p-6 sm:p-10 flex flex-col justify-between space-y-6 bg-[#090e17]/80">
+          <div className="lg:col-span-5 p-6 sm:p-10 flex flex-col justify-between space-y-6">
             <div>
               {/* Header */}
               <div
@@ -625,40 +640,14 @@ export function ProjectEstimator() {
                   <span className="text-xs font-semibold tracking-[2px] uppercase text-white/50 font-mono">
                     ESTIMATED INVESTMENT
                   </span>
-                  <span className="text-[10px] font-mono tracking-wider uppercase text-brand flex items-center gap-1.5 bg-brand/10 px-2 py-0.5 rounded-xs border border-brand/20">
-                    <svg
-                      className="w-2.5 h-2.5"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2.5"
-                    >
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                    </svg>
-                    CONFIDENTIAL
-                  </span>
                 </div>
 
-                <div className="relative py-1">
-                  {/* Blurred price value underneath */}
-                  <div
-                    aria-hidden="true"
-                    className="flex items-baseline gap-3 filter blur-[9px] select-none pointer-events-none opacity-50"
-                  >
-                    <span className="text-4xl sm:text-5xl font-extrabold text-brand font-mono tracking-tight">
-                      {currentSpec.egp}
-                    </span>
-                    <span className="text-lg text-white/60 font-medium font-mono">
-                      EGP
-                    </span>
-                  </div>
-
+                <div className="relative py-4">
                   {/* High-end Overlay pill inviting client to talk directly */}
                   <div className="absolute inset-0 flex items-center justify-start">
                     <Link
                       href="#schedule"
-                      className="group/blur inline-flex items-center gap-2.5 px-4 py-2 rounded-sm bg-[#070b12]/90 border border-brand/50 hover:border-brand hover:bg-[#0c1422] transition-all duration-300 shadow-[0_0_20px_rgba(196,162,84,0.12)] cursor-pointer"
+                      className="group/blur inline-flex items-center gap-2.5 px-4 py-2 rounded-sm border border-brand/50 hover:border-brand hover:bg-[#0c1422] transition-all duration-300 shadow-[0_0_20px_rgba(196,162,84,0.12)] cursor-pointer"
                     >
                       <svg
                         className="w-3.5 h-3.5 text-brand transition-transform duration-200 group-hover/blur:scale-110"

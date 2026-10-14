@@ -238,9 +238,9 @@ export function ProblemSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full py-16 md:py-24 px-6 sm:px-10 bg-[#05070a] border-b border-white/10 overflow-hidden"
+      className="relative w-full py-16 md:py-24 px-6 sm:px-10 md:px-20 bg-[#05070a] border-b border-white/10 overflow-hidden"
     >
-      <div className="max-w-[1353px] mx-auto space-y-12 md:space-y-16 relative">
+      <div className="space-y-12 md:space-y-16 relative">
         {/* Section Header Marker */}
         <div data-animate="header-marker" className="flex items-center gap-4">
           <span
@@ -287,10 +287,10 @@ export function ProblemSection() {
             <article
               key={card.id}
               data-animate="problem-card"
-              className="group relative flex flex-col justify-between border border-white/20 md:border-r-0 md:last:border-r hover:border-brand/60 p-8 bg-[#080d16] hover:bg-[#0c1422] transition-all duration-300 min-h-85 hover:shadow-[0_0_24px_rgba(196,162,84,0.12)] hover:z-10 cursor-default overflow-hidden opacity-0"
+              className="group relative flex flex-col justify-between border border-white/20 md:border-r-0 md:last:border-r hover:border-brand/60 p-8  hover:bg-[#0c1422]/50 transition-all duration-300 min-h-85 hover:shadow-[0_0_24px_rgba(196,162,84,0.12)] hover:z-10 cursor-default overflow-hidden opacity-0"
             >
               {/* Top ambient gold indicator hairline that reveals on card hover */}
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-brand scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-brand scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
 
               <div>
                 {/* Top Number & Icon */}

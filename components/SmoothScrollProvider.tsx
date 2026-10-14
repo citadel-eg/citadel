@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import { gsap, ScrollTrigger } from "@/lib/gsap";
 
@@ -10,6 +11,23 @@ export function SmoothScrollProvider({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+
+  // Reset scroll and refresh ScrollTrigger on route change
+  useEffect(() => {
+    const lenis = (window as any).__lenis;
+    if (lenis && typeof lenis.scrollTo === "function") {
+      lenis.scrollTo(0, { immediate: true });
+    } else if (typeof window !== "undefined") {
+      window.scrollTo(0, 0);
+    }
+    ScrollTrigger.refresh();
+    const timer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 80);
+    return () => clearTimeout(timer);
+  }, [pathname]);
+
   useEffect(() => {
     // Add lenis classes to html element
     document.documentElement.classList.add("lenis", "lenis-smooth");

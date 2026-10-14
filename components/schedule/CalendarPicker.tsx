@@ -40,15 +40,12 @@ export function CalendarPicker({
   };
 
   return (
-    <div className="bg-[#090e17] border border-brand/40 rounded-sm p-4 sm:p-5 space-y-3.5 shadow-[0_0_25px_rgba(196,162,84,0.12)]">
+    <div className="border border-brand/40 rounded-sm p-4 sm:p-5 space-y-3.5 shadow-[0_0_25px_rgba(196,162,84,0.12)]">
       {/* Calendar Month Navigation Header */}
       <div className="flex items-center justify-between pb-2 border-b border-white/10">
         <div className="flex items-center gap-2">
           <span className="text-xs sm:text-sm font-bold text-white font-mono uppercase tracking-wider">
             {MONTH_NAMES[viewMonth]} {viewYear}
-          </span>
-          <span className="text-[10px] font-mono text-brand bg-brand/10 border border-brand/20 px-2 py-0.5 rounded-xs font-semibold">
-            SELECT DAY
           </span>
         </div>
         <div className="flex items-center gap-1.5">
@@ -101,10 +98,10 @@ export function CalendarPicker({
                 isSelected
                   ? "bg-brand text-[#1C2633] font-bold shadow-[0_0_12px_rgba(196,162,84,0.35)] scale-105 z-10"
                   : isPast
-                  ? "text-white/15 cursor-not-allowed opacity-25"
-                  : !isCurrentMonth
-                  ? "text-white/25 hover:text-white/60 hover:bg-white/5"
-                  : "text-white/90 hover:bg-white/10 hover:text-white border border-transparent hover:border-brand/40"
+                    ? "text-white/15 cursor-not-allowed opacity-25"
+                    : !isCurrentMonth
+                      ? "text-white/25 hover:text-white/60 hover:bg-white/5"
+                      : "text-white/90 hover:bg-white/10 hover:text-white border border-transparent hover:border-brand/40"
               }`}
             >
               <span>{item.dayNum}</span>
@@ -119,7 +116,7 @@ export function CalendarPicker({
       {/* Selected Date Indicator */}
       <div className="pt-2.5 border-t border-white/10 flex items-center justify-between text-[11px] font-mono">
         <span className="text-white/40 tracking-wider uppercase">CHOSEN:</span>
-        <span className="text-brand font-bold tracking-wide">
+        <span className="text-white font-bold tracking-wide">
           {selectedDate.fullDisplay}
         </span>
       </div>

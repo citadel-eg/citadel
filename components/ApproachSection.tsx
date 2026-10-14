@@ -196,9 +196,9 @@ export function ApproachSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full py-16 md:py-24 px-6 sm:px-10 bg-[#05070a] border-b border-white/10 overflow-hidden"
+      className="relative w-full py-16 md:py-24 px-6 sm:px-10 md:px-20 bg-[#05070a] border-b border-white/10 overflow-hidden"
     >
-      <div className="max-w-[1353px] mx-auto space-y-12 md:space-y-16 relative">
+      <div className="space-y-12 md:space-y-16 relative">
         {/* Section Header Marker */}
         <div data-animate="header-marker" className="flex items-center gap-4">
           <span
@@ -247,13 +247,13 @@ export function ApproachSection() {
             <div
               key={layer.id}
               data-animate="layer-column"
-              className={`group relative flex flex-col justify-between p-7 border border-white lg:border-r-0 lg:last:border-r hover:border-brand/70 bg-[#080d16] hover:bg-[#0c1422] transition-all duration-300 ${layer.minHeightClass} hover:shadow-[0_0_30px_rgba(196,162,84,0.14)] hover:z-10 cursor-default overflow-hidden opacity-0`}
+              className={`group relative flex flex-col justify-between p-7 border border-white lg:border-r-0 lg:last:border-r hover:border-brand/70 hover:bg-[#0c1422]/50 transition-all duration-300 ${layer.minHeightClass} hover:shadow-[0_0_30px_rgba(196,162,84,0.14)] hover:z-10 cursor-default overflow-hidden opacity-0`}
             >
               {/* Top ambient gold indicator hairline on hover */}
-              <div className="absolute top-0 left-0 right-0 h-[2px] bg-brand scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+              <div className="absolute top-0 left-0 right-0 h-0.5 bg-brand scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
 
               {/* Ambient bottom glow sheen on hover */}
-              <div className="absolute inset-0 bg-gradient-to-t from-brand/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+              <div className="absolute inset-0 bg-linear-to-t from-brand/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
               {/* Top: Number & Stair Icon */}
               <div className="relative flex items-start justify-between">

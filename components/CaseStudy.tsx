@@ -156,7 +156,17 @@ const CAROUSEL_ITEMS: CircularCarouselItem[] = CASE_STUDIES.map((cs) => ({
   subtitle: cs.category,
 }));
 
-export function CaseStudy() {
+export interface CaseStudyProps {
+  sectionNumber?: string;
+  sectionTitle?: string;
+  headline?: string;
+}
+
+export function CaseStudy({
+  sectionNumber = "07",
+  sectionTitle = "CASE STUDIES",
+  headline = "PROBLEM → SYSTEM → RESULT.",
+}: CaseStudyProps = {}) {
   const sectionRef = useRef<HTMLElement>(null);
   const detailsRef = useRef<HTMLDivElement>(null);
   const carouselStageRef = useRef<HTMLDivElement>(null);
@@ -183,11 +193,9 @@ export function CaseStudy() {
           scrollTrigger: {
             trigger: sectionRef.current,
             start: motion.scrollStart,
-            toggleActions: "play reverse play reverse",
+            once: true,
             onEnter: () => setRingInView(true),
             onEnterBack: () => setRingInView(true),
-            onLeaveBack: () => setRingInView(false),
-            onLeave: () => setRingInView(false),
             onRefresh: (self) => {
               if (self.progress > 0) {
                 setRingInView(true);
@@ -252,6 +260,7 @@ export function CaseStudy() {
       });
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
+        setRingInView(true);
         gsap.fromTo(
           "[data-animate]",
           { opacity: 0 },
@@ -262,11 +271,7 @@ export function CaseStudy() {
             scrollTrigger: {
               trigger: sectionRef.current,
               start: motion.scrollStart,
-              toggleActions: "play reverse play reverse",
-              onEnter: () => setRingInView(true),
-              onEnterBack: () => setRingInView(true),
-              onLeaveBack: () => setRingInView(false),
-              onLeave: () => setRingInView(false),
+              once: true,
             },
           },
         );
@@ -343,7 +348,7 @@ export function CaseStudy() {
                 data-animate="header-num"
                 className="text-xs font-semibold tracking-[3px] uppercase text-brand font-mono"
               >
-                07
+                {sectionNumber}
               </span>
               <span
                 data-animate="header-line"
@@ -353,7 +358,7 @@ export function CaseStudy() {
                 data-animate="header-title"
                 className="text-xs font-semibold tracking-[3px] uppercase text-white/80"
               >
-                CASE STUDIES
+                {sectionTitle}
               </span>
             </div>
 
@@ -361,7 +366,7 @@ export function CaseStudy() {
               data-animate="headline"
               className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight leading-none uppercase"
             >
-              PROBLEM → SYSTEM → RESULT.
+              {headline}
             </h2>
           </div>
         </div>

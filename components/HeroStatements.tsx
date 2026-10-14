@@ -112,9 +112,7 @@ export function HeroStatements() {
   // Watch isIntroActive and tab visibility so hero entrance is guaranteed to play
   useEffect(() => {
     if (!isIntroActive && entranceTlRef.current) {
-      if (entranceTlRef.current.progress() === 0) {
-        entranceTlRef.current.play();
-      }
+      entranceTlRef.current.progress(1);
     }
   }, [isIntroActive]);
 
@@ -175,6 +173,7 @@ export function HeroStatements() {
       if (!container) return;
 
       const mm = gsap.matchMedia();
+      let onRefreshHandler: (() => void) | null = null;
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         // 1. Initial Hero Entrance Animation
@@ -243,8 +242,31 @@ export function HeroStatements() {
           }
         });
 
-        if (!isIntroActive && entranceTl.progress() === 0) {
+        if (!isIntroActive) {
           entranceTl.progress(1);
+          gsap.set("[data-animate='hero-line']", {
+            yPercent: 0,
+            opacity: 1,
+            clearProps: "opacity,transform",
+          });
+          gsap.set("[data-animate='hero-tag']", {
+            y: 0,
+            opacity: 1,
+            clearProps: "opacity,transform",
+          });
+          gsap.set("[data-animate='hero-model']", {
+            opacity: 1,
+            scale: 1,
+            y: 0,
+            clearProps: "opacity",
+          });
+          if (heroHeaderRef.current) {
+            gsap.set(heroHeaderRef.current, {
+              opacity: 1,
+              y: 0,
+              clearProps: "opacity",
+            });
+          }
         }
 
         // Helper to compute exact pixel offset to center the 3D model and position it below the hero headline
@@ -293,9 +315,17 @@ export function HeroStatements() {
         gsap.set(modelTransitionRef.current, {
           x: initialOffset.x,
           y: initialOffset.y,
-          scale: 0.9,
+          scale: 0.8,
           transformOrigin: "center center",
         });
+
+        onRefreshHandler = () => {
+          if (activePhaseRef.current === "all" && modelTransitionRef.current) {
+            const offset = getHeroOffset();
+            gsap.set(modelTransitionRef.current, { x: offset.x, y: offset.y });
+          }
+        };
+        ScrollTrigger.addEventListener("refresh", onRefreshHandler);
 
         const heroDuration = 0.12;
 
@@ -317,6 +347,9 @@ export function HeroStatements() {
                   activePhaseRef.current = "all";
                   setActiveModelPhase("all");
                   setIsHero(true);
+                }
+                if (heroHeaderRef.current) {
+                  gsap.set(heroHeaderRef.current, { opacity: 1, y: 0 });
                 }
               } else {
                 // Inside Statements view
@@ -417,6 +450,12 @@ export function HeroStatements() {
 
         // Extend timeline across statement scroll zone
         masterTl.to({}, { duration: 1 - heroDuration });
+
+        return () => {
+          if (onRefreshHandler) {
+            ScrollTrigger.removeEventListener("refresh", onRefreshHandler);
+          }
+        };
       });
 
       mm.add("(prefers-reduced-motion: reduce)", () => {
@@ -444,6 +483,10 @@ export function HeroStatements() {
       });
 
       return () => {
+        if (onRefreshHandler) {
+          ScrollTrigger.removeEventListener("refresh", onRefreshHandler);
+          onRefreshHandler = null;
+        }
         mm.revert();
         triggerRef.current = null;
       };
@@ -531,7 +574,7 @@ export function HeroStatements() {
       style={{ height: `${100 + statements.length * 70}vh` }}
     >
       {/* Sticky Stage pinned across entire Hero + 8-Phase Architectural Journey */}
-      <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden px-6 sm:px-10 pt-20 pb-6 sm:pb-8">
+      <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden px-6 sm:px-10 md:px-20 pt-20 pb-6 sm:pb-8">
         {/* Background Particles: full starry ambience in Hero, gently dimmed in Statements */}
         <div
           ref={particlesRef}
@@ -553,7 +596,7 @@ export function HeroStatements() {
         </div>
         <div
           ref={innerContainerRef}
-          className="max-w-[1353px] mx-auto w-full h-full relative flex items-center justify-center"
+          className="w-full h-full relative flex items-center justify-center"
         >
           {/* Hero Billboard Header Layer (Active at scroll 0, smoothly scrubs away as user scrolls) */}
           <div
@@ -588,7 +631,7 @@ export function HeroStatements() {
           </div>
 
           {/* Unified Two-Column Layout (Statements on left, Single 3D Model on right) */}
-          <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center z-10">
+          <div className="w-full max-w-7xl 2xl:max-w-384 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center z-10">
             {/* Left Column: Statements UI & Controls */}
             <div
               ref={statementsTextRef}
@@ -684,7 +727,7 @@ export function HeroStatements() {
             <div className="w-full flex items-center justify-center relative">
               <div
                 ref={modelTransitionRef}
-                className="w-full flex items-center justify-center will-change-transform lg:-translate-x-1/2 translate-y-16 sm:translate-y-20"
+                className="w-full flex items-center justify-center will-change-transform"
               >
                 <div
                   data-animate="hero-model"

@@ -138,7 +138,7 @@ export function BookingForm({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. We have manual dispatch bottlenecks across multiple branches..."
-              className="w-full flex-1 min-h-[90px] bg-[#05070a] border border-white/20 rounded-sm px-3.5 py-2.5 text-sm text-white placeholder:text-white/30 focus-visible:outline-2 focus-visible:outline-brand focus:border-brand hover:border-white/30 transition-colors resize-none"
+              className="w-full flex-1 min-h-22.5 bg-[#05070a] border border-white/20 rounded-sm px-3.5 py-2.5 text-sm text-white placeholder:text-white/30 focus-visible:outline-2 focus-visible:outline-brand focus:border-brand hover:border-white/30 transition-colors resize-none"
             />
           </div>
         </div>

@@ -4,8 +4,8 @@ import { Citadel3DPlaceholder } from "./Citadel3DPlaceholder";
 
 export function HeroMain() {
   return (
-    <section className="relative w-full py-16 md:py-24 px-6 sm:px-10 bg-[#05070a] border-b border-white/10">
-      <div className="max-w-[1353px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+    <section className="relative w-full py-16 md:py-24 px-6 sm:px-10 md:px-20 bg-[#05070a] border-b border-white/10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
         {/* Left Column Text & Action */}
         <div className="flex flex-col items-start space-y-6 md:space-y-8">
           <div className="flex items-center gap-3">
@@ -21,7 +21,8 @@ export function HeroMain() {
           </h2>
 
           <p className="text-base sm:text-xl text-white/60 font-normal leading-relaxed max-w-xl">
-            We solve operational problems with systems built for sustainable growth. We understand operations first. Technology second.
+            We solve operational problems with systems built for sustainable
+            growth. We understand operations first. Technology second.
           </p>
 
           <div className="pt-2">

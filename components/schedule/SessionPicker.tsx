@@ -42,9 +42,6 @@ export function SessionPicker({
             <span className="text-xs font-semibold tracking-[2px] uppercase text-white/50 font-mono">
               01 / DATE &amp; TIME
             </span>
-            <span className="text-[10px] font-mono tracking-wider uppercase text-brand bg-brand/10 border border-brand/20 px-2 py-0.5 rounded-xs font-semibold">
-              30 MIN DISCOVERY
-            </span>
           </div>
           <h3 className="text-2xl sm:text-4xl font-bold text-white tracking-tight mt-2">
             Select Your Session
@@ -64,7 +61,7 @@ export function SessionPicker({
             <button
               type="button"
               onClick={onToggleCustomDate}
-              className="text-[11px] font-mono text-brand hover:text-brand/80 hover:underline cursor-pointer transition-colors flex items-center gap-1"
+              className="text-[11px] font-mono text-white hover:text-brand flex items-center gap-1 py-2 px-4 border border-brand/20 rounded-sm font-semibold hover:border-brand hover:bg-[#0c1422] transition-all duration-300 shadow-[0_0_20px_rgba(196,162,84,0.12)] cursor-pointer"
             >
               {isCustomDate ? (
                 <span>← Back to quick 5 days</span>
@@ -98,7 +95,7 @@ export function SessionPicker({
                     className={`flex flex-col items-center justify-center py-4 sm:py-4.5 rounded-sm border transition-all duration-200 cursor-pointer active:scale-[0.98] ${
                       isSelected
                         ? "bg-brand text-[#1C2633] border-brand shadow-[0_0_15px_rgba(196,162,84,0.3)] font-semibold"
-                        : "bg-[#090e17] text-white/70 border-white/15 hover:border-brand/50 hover:text-white"
+                        : " text-white/70 border-white/15 hover:border-brand/50 hover:text-white"
                     }`}
                   >
                     <span className="text-[11px] font-medium uppercase tracking-wider">
@@ -133,7 +130,7 @@ export function SessionPicker({
                   className={`py-3.5 px-3.5 rounded-sm border text-xs sm:text-sm font-mono transition-all duration-200 cursor-pointer active:scale-[0.98] ${
                     isSelected
                       ? "bg-brand text-[#1C2633] border-brand font-bold shadow-[0_0_15px_rgba(196,162,84,0.25)]"
-                      : "bg-[#090e17] text-white/70 border-white/15 hover:border-brand/50 hover:text-white"
+                      : " text-white/70 border-white/15 hover:border-brand/50 hover:text-white"
                   }`}
                 >
                   {time}
