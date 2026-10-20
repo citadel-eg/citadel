@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 260" fill="none" width="100%" height="260">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070A0F"/>
+      <stop offset="50%" stop-color="#05070A"/>
+      <stop offset="100%" stop-color="#0A0E17"/>
+    </linearGradient>
+    <radialGradient id="goldGlow" cx="50%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#C4A254" stop-opacity="0.18"/>
+      <stop offset="60%" stop-color="#C4A254" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#C4A254" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="borderGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C4A254" stop-opacity="0.35"/>
+      <stop offset="50%" stop-color="#1C2633" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#C4A254" stop-opacity="0.2"/>
+    </linearGradient>
+    <linearGradient id="goldText" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#DFBF72"/>
+      <stop offset="50%" stop-color="#C4A254"/>
+      <stop offset="100%" stop-color="#B28F42"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Container Box -->
+  <rect x="1" y="1" width="838" height="258" rx="16" fill="url(#bgGrad)"/>
+  <rect x="1" y="1" width="838" height="258" rx="16" stroke="url(#borderGrad)" stroke-width="1.5"/>
+
+  <!-- Subtle Radial Glow Behind Center -->
+  <ellipse cx="420" cy="115" rx="260" ry="110" fill="url(#goldGlow)"/>
+
+  <!-- Architectural Background Grid Lines -->
+  <line x1="60" y1="0" x2="60" y2="260" stroke="#FFFFFF" stroke-opacity="0.03" stroke-width="1"/>
+  <line x1="780" y1="0" x2="780" y2="260" stroke="#FFFFFF" stroke-opacity="0.03" stroke-width="1"/>
+  <line x1="0" y1="50" x2="840" y2="50" stroke="#FFFFFF" stroke-opacity="0.03" stroke-width="1"/>
+  <line x1="0" y1="210" x2="840" y2="210" stroke="#FFFFFF" stroke-opacity="0.03" stroke-width="1"/>
+
+  <!-- Subtle Technical Corner Crosshairs -->
+  <path d="M55 45 H65 M60 40 V50" stroke="#C4A254" stroke-opacity="0.4" stroke-width="1"/>
+  <path d="M775 45 H785 M780 40 V50" stroke="#C4A254" stroke-opacity="0.4" stroke-width="1"/>
+  <path d="M55 215 H65 M60 210 V220" stroke="#C4A254" stroke-opacity="0.4" stroke-width="1"/>
+  <path d="M775 215 H785 M780 210 V220" stroke="#C4A254" stroke-opacity="0.4" stroke-width="1"/>
+
+  <!-- Live Status Badge Top Right -->
+  <g transform="translate(640, 24)">
+    <rect width="138" height="22" rx="4" fill="#1C2633" fill-opacity="0.6" stroke="#C4A254" stroke-opacity="0.25" stroke-width="1"/>
+    <circle cx="12" cy="11" r="3.5" fill="#C4A254"/>
+    <text x="24" y="14.5" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="9" font-weight="700" letter-spacing="1.5" fill="#C4A254">LIVE PLATFORM</text>
+  </g>
+
+  <!-- Citadel Architectural Tier Mark (Centered, scaled to 52px height) -->
+  <g transform="translate(401, 38) scale(1.625)">
+    <!-- Tier 1 Base -->
+    <path d="M23.8125 27.771H0V31.9923H23.8125V27.771Z" fill="#C4A254"/>
+    <!-- Tier 2 -->
+    <path d="M22.4054 23.9826H1.4071V26.8509H22.4054V23.9826Z" fill="#C4A254"/>
+    <!-- Tier 3 -->
+    <path d="M21.0524 20.3025H2.76009V23.1167H21.0524V20.3025Z" fill="#C4A254"/>
+    <!-- Tier 4 -->
+    <path d="M20.0241 16.6221H3.78833V19.4021H20.0241V16.6221Z" fill="#C4A254"/>
+    <!-- Tier 5 -->
+    <path d="M18.9959 12.9961H4.81665V15.7361H18.9959V12.9961Z" fill="#C4A254"/>
+    <!-- Tier 6 -->
+    <path d="M17.9134 9.37012H5.89893V12.0701H17.9134V9.37012Z" fill="#C4A254"/>
+    <!-- Tier 7 -->
+    <path d="M16.8852 5.79883H6.92725V8.39883H16.8852V5.79883Z" fill="#C4A254"/>
+    <!-- Tier 8 Crenels -->
+    <path d="M5.89901 0.00774132H9.84972V2.22663H13.9628V0.00774132H17.9135V4.87848H5.89901V0.00774132Z" fill="#C4A254"/>
+  </g>
+
+  <!-- Typography -->
+  <!-- Primary Title: CITADEL -->
+  <text x="420" y="132" text-anchor="middle" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="32" font-weight="900" letter-spacing="7" fill="#FFFFFF">CITADEL</text>
+
+  <!-- Subtitle: SMART SOLUTIONS -->
+  <text x="420" y="156" text-anchor="middle" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="12" font-weight="700" letter-spacing="5" fill="url(#goldText)">SMART SOLUTIONS</text>
+
+  <!-- Subtle Divider Line -->
+  <line x1="330" y1="174" x2="510" y2="174" stroke="#1C2633" stroke-width="1.5"/>
+  <circle cx="420" cy="174" r="2.5" fill="#C4A254" fill-opacity="0.8"/>
+
+  <!-- Tagline / Motto -->
+  <text x="420" y="196" text-anchor="middle" font-family="Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="500" letter-spacing="3" fill="#8A99AD">STRONG SYSTEMS · SUSTAINABLE GROWTH</text>
+</svg>

@@ -8,9 +8,18 @@ import {
 } from "@/components/work/WorkSections";
 
 export const metadata: Metadata = {
-  title: "Work | Citadel Smart Solutions",
+  title: "Selected Work & Case Studies",
   description:
-    "Explore our work through the problems, decisions, and outcomes behind each project. Citadel Smart Solutions.",
+    "Explore Citadel's portfolio: deep architectural case studies including the Galaxy Store multi-channel commerce platform, operational automation, and product engineering.",
+  alternates: {
+    canonical: "/work",
+  },
+  openGraph: {
+    title: "Selected Work & Case Studies | Citadel Smart Solutions",
+    description:
+      "Explore the architectural decisions, operational metrics, and scalable platforms built by Citadel.",
+    url: "/work",
+  },
 };
 
 export default function WorkPage() {

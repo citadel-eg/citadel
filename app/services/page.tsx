@@ -10,9 +10,18 @@ import {
 } from "@/components/services/ServicesSections";
 
 export const metadata: Metadata = {
-  title: "Services | Citadel Smart Solutions",
+  title: "Services & Capabilities",
   description:
-    "Automation, Operations, and Digital Products. Built around how your business works. Citadel Smart Solutions.",
+    "Automation, Operations Engineering, and Digital Products. Built around how your business works with transparent scoping and measurable ROI.",
+  alternates: {
+    canonical: "/services",
+  },
+  openGraph: {
+    title: "Services & Capabilities | Citadel Smart Solutions",
+    description:
+      "Custom operational engines, automated workflows, and high-performance digital products engineered for long-term scalability.",
+    url: "/services",
+  },
 };
 
 export default function ServicesPage() {

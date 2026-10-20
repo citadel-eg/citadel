@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Header } from "@/components/Header";
 import { HeroStatements } from "@/components/HeroStatements";
 import { BusinessFirst } from "@/components/BusinessFirst";
@@ -8,6 +9,21 @@ import { ProjectEstimator } from "@/components/ProjectEstimator";
 import { CaseStudy } from "@/components/CaseStudy";
 import { ScheduleConversation } from "@/components/ScheduleConversation";
 import { FooterCTA } from "@/components/FooterCTA";
+
+export const metadata: Metadata = {
+  title: "Business-First Systems Engineering & Digital Products",
+  description:
+    "Citadel designs and builds high-performance operational systems, automation infrastructure, and digital products tailored to your exact business workflow.",
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Citadel Smart Solutions — Business-First Systems Engineering",
+    description:
+      "We understand how your business operates before writing a single line of code. Custom software, automation, and operational engines.",
+    url: "/",
+  },
+};
 
 export default function Home() {
   return (

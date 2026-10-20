@@ -11,9 +11,18 @@ import {
 } from "@/components/company/CompanySections";
 
 export const metadata: Metadata = {
-  title: "Company | Citadel Smart Solutions",
+  title: "Company, Philosophy & Values",
   description:
-    "We understand the business first, then build technology around how it really works. Citadel Smart Solutions.",
+    "Learn about Citadel Smart Solutions: our business-first engineering philosophy, six operating rules, leadership, and mission.",
+  alternates: {
+    canonical: "/company",
+  },
+  openGraph: {
+    title: "Company, Philosophy & Values | Citadel Smart Solutions",
+    description:
+      "We understand the business first, then build technology around how it really works.",
+    url: "/company",
+  },
 };
 
 export default function CompanyPage() {

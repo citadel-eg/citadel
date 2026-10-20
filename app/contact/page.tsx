@@ -5,9 +5,18 @@ import { ContactHero } from "@/components/contact/ContactHero";
 import { ContactBookingSection } from "@/components/contact/ContactBookingSection";
 
 export const metadata: Metadata = {
-  title: "Contact | Citadel Smart Solutions",
+  title: "Contact & Consultation Scheduling",
   description:
-    "A clear project starts with a clear conversation. Schedule a consultation with Citadel Smart Solutions.",
+    "A clear project starts with a clear conversation. Schedule an architectural consultation or discovery session with Citadel Smart Solutions.",
+  alternates: {
+    canonical: "/contact",
+  },
+  openGraph: {
+    title: "Contact & Schedule Consultation | Citadel Smart Solutions",
+    description:
+      "Schedule a 30-minute discovery call with our systems team or send an inquiry about your project.",
+    url: "/contact",
+  },
 };
 
 export default function ContactPage() {
