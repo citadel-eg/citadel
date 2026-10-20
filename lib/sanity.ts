@@ -102,7 +102,12 @@ export function mapSanityToCaseStudy(
   let imgSrc = "";
   if (p.image) {
     try {
-      imgSrc = urlFor(p.image).width(1200).quality(85).url();
+      imgSrc = urlFor(p.image)
+        .width(1600)
+        .quality(100)
+        .fit("max")
+        .auto("format")
+        .url();
     } catch {
       imgSrc = "";
     }
