@@ -111,19 +111,20 @@ export function FooterCTA() {
   return (
     <footer
       ref={footerRef}
-      className="relative w-full overflow-hidden bg-[#05070a] pt-20 pb-12 border-t border-white/15"
+      className="relative w-full bg-[#05070a] border-t border-white/15"
     >
-      {/* Giant Watermark Silhouette of Citadel Tower in bottom right with subtle scrub parallax */}
-      <div
-        ref={watermarkRef}
-        className="absolute -right-8 sm:right-4 md:right-10 lg:right-16 inset-y-0 flex items-center justify-end pointer-events-none opacity-[0.035] select-none will-change-transform"
-      >
-        <CitadelMark className="h-full w-auto aspect-3/4 text-white" />
-      </div>
+      {/* 1. First Footer Section (CTA Hero with Watermark Silhouette) */}
+      <div className="relative overflow-hidden pt-20 pb-16 md:pb-24 px-6 sm:px-8 md:px-12 lg:px-16 xl:px-20">
+        {/* Giant Watermark Silhouette of Citadel Tower confined strictly to the first section */}
+        <div
+          ref={watermarkRef}
+          className="absolute -right-8 sm:right-4 md:right-10 lg:right-16 inset-y-0 flex items-center justify-end pointer-events-none opacity-[0.035] select-none will-change-transform"
+        >
+          <CitadelMark className="h-full w-auto aspect-3/4 text-white" />
+        </div>
 
-      <div className="px-6 sm:px-10 md:px-20 relative z-10 flex flex-col justify-between space-y-24">
         {/* Big Centered Headline & Action */}
-        <div className="flex flex-col items-center justify-center text-center space-y-8 py-12 md:py-20">
+        <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-8 py-10 md:py-16">
           <h2
             data-animate="footer-headline"
             className="text-3xl sm:text-6xl md:text-7xl font-bold text-white tracking-tight uppercase leading-[1.05]"
@@ -144,10 +145,11 @@ export function FooterCTA() {
           </div>
         </div>
       </div>
-      {/* Bottom Bar */}
+
+      {/* 2. Bottom Bar (Clean, no watermark overlap) */}
       <div
         data-animate="footer-bar"
-        className="pt-8 px-6 sm:px-10 md:px-20 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-6"
+        className="py-8 px-6 sm:px-8 md:px-12 lg:px-16 xl:px-20 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-6 relative z-10 bg-[#05070a]"
       >
         <Link href="/" className="hover:opacity-90 transition-opacity">
           <CitadelLogo />

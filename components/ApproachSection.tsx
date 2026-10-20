@@ -17,35 +17,35 @@ const layers: LayerItem[] = [
     id: "01",
     name: "DISCOVER",
     description: "Understand the operational problem.",
-    minHeightClass: "min-h-[280px] lg:mt-[340px]",
+    minHeightClass: "lg:min-h-[280px] lg:mt-[340px]",
     activeSteps: 1,
   },
   {
     id: "02",
     name: "ARCHITECT",
     description: "Design the system structure.",
-    minHeightClass: "min-h-[360px] lg:mt-[255px]",
+    minHeightClass: "lg:min-h-[360px] lg:mt-[255px]",
     activeSteps: 2,
   },
   {
     id: "03",
     name: "BUILD",
     description: "Develop and test the solution.",
-    minHeightClass: "min-h-[450px] lg:mt-[170px]",
+    minHeightClass: "lg:min-h-[450px] lg:mt-[170px]",
     activeSteps: 3,
   },
   {
     id: "04",
     name: "DEPLOY",
     description: "Implement and transfer ownership.",
-    minHeightClass: "min-h-[530px] lg:mt-[85px]",
+    minHeightClass: "lg:min-h-[530px] lg:mt-[85px]",
     activeSteps: 4,
   },
   {
     id: "05",
     name: "SUPPORT",
     description: "Long-term partnership and evolution.",
-    minHeightClass: "min-h-[620px] lg:mt-0",
+    minHeightClass: "lg:min-h-[620px] lg:mt-0",
     activeSteps: 5,
   },
 ];
@@ -196,7 +196,7 @@ export function ApproachSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full py-16 md:py-24 px-6 sm:px-10 md:px-20 bg-[#05070a] border-b border-white/10 overflow-hidden"
+      className="relative w-full py-16 md:py-24 px-6 sm:px-8 md:px-12 lg:px-16 xl:px-20 bg-[#05070a] border-b border-white/10 overflow-hidden"
     >
       <div className="space-y-12 md:space-y-16 relative">
         {/* Section Header Marker */}
@@ -247,7 +247,9 @@ export function ApproachSection() {
             <div
               key={layer.id}
               data-animate="layer-column"
-              className={`group relative flex flex-col justify-between p-7 border border-white lg:border-r-0 lg:last:border-r hover:border-brand/70 hover:bg-[#0c1422]/50 transition-all duration-300 ${layer.minHeightClass} hover:shadow-[0_0_30px_rgba(196,162,84,0.14)] hover:z-10 cursor-default overflow-hidden opacity-0`}
+              className={`group relative flex flex-col justify-between p-6 md:p-7 border border-white lg:border-r-0 lg:last:border-r hover:border-brand/70 hover:bg-[#0c1422]/50 transition-all duration-300 ${layer.minHeightClass} ${
+                layer.id === "05" ? "sm:col-span-2 lg:col-span-1" : ""
+              } hover:shadow-[0_0_30px_rgba(196,162,84,0.14)] hover:z-10 cursor-default overflow-hidden opacity-0`}
             >
               {/* Top ambient gold indicator hairline on hover */}
               <div className="absolute top-0 left-0 right-0 h-0.5 bg-brand scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />

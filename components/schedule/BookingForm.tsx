@@ -42,32 +42,36 @@ export function BookingForm({
           <span className="text-xs font-semibold tracking-[2px] uppercase text-white/50 font-mono">
             02 / YOUR DETAILS
           </span>
-          <h3 className="text-2xl sm:text-4xl font-bold text-white tracking-tight mt-2">
+          <h3 className="text-2xl sm:text-4xl font-bold text-white tracking-tight mt-1.5 sm:mt-2">
             Tell us about your business
           </h3>
         </div>
 
         {/* Selected Slot Interactive Badge */}
-        <div className="bg-[#05070a] border border-white/15 rounded-sm p-3.5 sm:p-4 flex items-center justify-between gap-3 shadow-xs">
-          <div className="flex items-center gap-2.5">
+        <div className="bg-[#05070a] border border-white/15 rounded-sm p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-3 shadow-xs">
+          <div className="flex items-center gap-2.5 min-w-0">
             <span className="w-2 h-2 rounded-full bg-brand shrink-0" />
-            <div>
+            <div className="min-w-0">
               <span className="text-[10px] font-mono text-white/40 uppercase tracking-wider block">
                 SELECTED CONSULTATION
               </span>
-              <span className="text-xs sm:text-sm font-semibold text-white font-mono">
+              <span className="text-xs sm:text-sm font-semibold text-white font-mono block">
                 {selectedDate.fullDisplay}
               </span>
             </div>
           </div>
-          <span className="text-xs font-mono font-bold text-brand bg-brand/10 border border-brand/20 px-2.5 py-1 rounded-xs shrink-0">
+          <span className="text-xs font-mono font-bold text-brand bg-brand/10 border border-brand/20 px-2.5 py-1 rounded-xs shrink-0 self-start sm:self-auto">
             {selectedTime} (Cairo)
           </span>
         </div>
       </div>
 
       {/* Main Form Inputs */}
-      <form onSubmit={onSubmit} className="space-y-4 flex flex-col justify-between flex-1">
+      <form
+        onSubmit={onSubmit}
+        suppressHydrationWarning
+        className="space-y-4 flex flex-col justify-between flex-1"
+      >
         <div className="space-y-3.5 flex flex-col flex-1">
           {/* Row 1: Name & Business */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 shrink-0">
@@ -78,6 +82,7 @@ export function BookingForm({
               <input
                 type="text"
                 required
+                suppressHydrationWarning
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Adel Yasser"
@@ -91,6 +96,7 @@ export function BookingForm({
               <input
                 type="text"
                 required
+                suppressHydrationWarning
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
                 placeholder="Company Name"
@@ -108,6 +114,7 @@ export function BookingForm({
               <input
                 type="email"
                 required
+                suppressHydrationWarning
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="adel@company.com"
@@ -121,6 +128,7 @@ export function BookingForm({
               <input
                 type="tel"
                 required
+                suppressHydrationWarning
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+20 100 000 0000"
@@ -136,6 +144,7 @@ export function BookingForm({
             </label>
             <textarea
               value={notes}
+              suppressHydrationWarning
               onChange={(e) => setNotes(e.target.value)}
               placeholder="e.g. We have manual dispatch bottlenecks across multiple branches..."
               className="w-full flex-1 min-h-22.5 bg-[#05070a] border border-white/20 rounded-sm px-3.5 py-2.5 text-sm text-white placeholder:text-white/30 focus-visible:outline-2 focus-visible:outline-brand focus:border-brand hover:border-white/30 transition-colors resize-none"

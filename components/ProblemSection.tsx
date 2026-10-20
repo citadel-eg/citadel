@@ -238,7 +238,7 @@ export function ProblemSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative w-full py-16 md:py-24 px-6 sm:px-10 md:px-20 bg-[#05070a] border-b border-white/10 overflow-hidden"
+      className="relative w-full py-16 md:py-24 px-6 sm:px-8 md:px-12 lg:px-16 xl:px-20 bg-[#05070a] border-b border-white/10 overflow-hidden"
     >
       <div className="space-y-12 md:space-y-16 relative">
         {/* Section Header Marker */}
@@ -287,14 +287,14 @@ export function ProblemSection() {
             <article
               key={card.id}
               data-animate="problem-card"
-              className="group relative flex flex-col justify-between border border-white/20 md:border-r-0 md:last:border-r hover:border-brand/60 p-8  hover:bg-[#0c1422]/50 transition-all duration-300 min-h-85 hover:shadow-[0_0_24px_rgba(196,162,84,0.12)] hover:z-10 cursor-default overflow-hidden opacity-0"
+              className="group relative flex flex-col justify-between border border-white/20 md:border-r-0 md:last:border-r hover:border-brand/60 p-6 md:p-5 lg:p-8 hover:bg-[#0c1422]/50 transition-all duration-300 min-h-75 lg:min-h-85 hover:shadow-[0_0_24px_rgba(196,162,84,0.12)] hover:z-10 cursor-default overflow-hidden opacity-0"
             >
               {/* Top ambient gold indicator hairline that reveals on card hover */}
               <div className="absolute top-0 left-0 right-0 h-0.5 bg-brand scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
 
               <div>
                 {/* Top Number & Icon */}
-                <div className="flex items-center justify-between pb-8">
+                <div className="flex items-center justify-between pb-6 md:pb-8">
                   <span className="text-xs sm:text-sm font-mono text-white/60 group-hover:text-brand tracking-wider transition-colors duration-200">
                     {card.id}
                   </span>
@@ -307,10 +307,10 @@ export function ProblemSection() {
                 </div>
 
                 {/* Card Title & Description */}
-                <h3 className="text-xl sm:text-2xl font-bold text-white uppercase tracking-tight group-hover:text-white transition-colors duration-200">
+                <h3 className="text-lg sm:text-xl md:text-[17px] lg:text-2xl font-bold text-white uppercase tracking-tight group-hover:text-white transition-colors duration-200 break-words">
                   {card.title}
                 </h3>
-                <p className="text-sm sm:text-base text-white/60 font-normal leading-relaxed mt-4 group-hover:text-white/70 transition-colors duration-200">
+                <p className="text-xs sm:text-sm lg:text-base text-white/60 font-normal leading-relaxed mt-3 sm:mt-4 group-hover:text-white/70 transition-colors duration-200">
                   {card.description}
                 </p>
               </div>
@@ -318,9 +318,9 @@ export function ProblemSection() {
               {/* Bottom Divider & Tag */}
               <div
                 data-animate="card-divider"
-                className="pt-8 border-t border-white/20 group-hover:border-brand/40 transition-colors duration-300 mt-8 origin-left"
+                className="pt-6 md:pt-8 border-t border-white/20 group-hover:border-brand/40 transition-colors duration-300 mt-6 md:mt-8 origin-left"
               >
-                <span className="text-[11px] sm:text-xs font-semibold tracking-[2px] uppercase text-white/50 group-hover:text-white/80 transition-colors duration-200 font-mono">
+                <span className="text-[10px] sm:text-[11px] lg:text-xs font-semibold tracking-[1.5px] lg:tracking-[2px] uppercase text-white/50 group-hover:text-white/80 transition-colors duration-200 font-mono">
                   {card.footerNote}
                 </span>
               </div>

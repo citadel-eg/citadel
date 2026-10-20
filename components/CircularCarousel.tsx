@@ -3,11 +3,17 @@
 import React, {
   useCallback,
   useEffect,
+  useImperativeHandle,
   useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from "react";
+
+export interface CircularCarouselRef {
+  stepBy: (delta: number) => void;
+  focusIndex: (index: number) => void;
+}
 
 export interface CircularCarouselItem {
   src: string;
@@ -355,40 +361,47 @@ const usePrefersReducedMotion = () => {
   return reduced;
 };
 
-const CircularCarousel = ({
-  items = DEFAULT_ITEMS,
-  preset = "cylinder",
-  intro = "rise",
-  playIntro,
-  cardWidth = 220,
-  aspectRatio = 1,
-  gap = 25,
-  curve,
-  tilt,
-  perspective,
-  autoplay = "drift",
-  speed = 14,
-  interval = 3,
-  direction = "left",
-  draggable = true,
-  momentum = 0.6,
-  snap = true,
-  pauseOnHover = true,
-  focusOnClick = true,
-  parallax = 0.3,
-  stretch = 0.5,
-  depthFade = 0.55,
-  fadeColor = "#000000",
-  innerShade = 0.6,
-  cornerRadius = 12,
-  captions = false,
-  bottomSpace = 0,
-  children,
-  onChange,
-  onItemClick,
-  className = "",
-  style,
-}: CircularCarouselProps) => {
+const CircularCarousel = React.forwardRef<
+  CircularCarouselRef,
+  CircularCarouselProps
+>(
+  (
+    {
+      items = DEFAULT_ITEMS,
+      preset = "cylinder",
+      intro = "rise",
+      playIntro,
+      cardWidth = 220,
+      aspectRatio = 1,
+      gap = 25,
+      curve,
+      tilt,
+      perspective,
+      autoplay = "drift",
+      speed = 14,
+      interval = 3,
+      direction = "left",
+      draggable = true,
+      momentum = 0.6,
+      snap = true,
+      pauseOnHover = true,
+      focusOnClick = true,
+      parallax = 0.3,
+      stretch = 0.5,
+      depthFade = 0.55,
+      fadeColor = "#000000",
+      innerShade = 0.6,
+      cornerRadius = 12,
+      captions = false,
+      bottomSpace = 0,
+      children,
+      onChange,
+      onItemClick,
+      className = "",
+      style,
+    }: CircularCarouselProps,
+    ref,
+  ) => {
   const incoming = items && items.length ? items : DEFAULT_ITEMS;
   const [list, setList] = useState<CircularCarouselItem[]>(incoming);
   const [leaving, setLeaving] = useState<Leaving | null>(null);
@@ -1004,6 +1017,15 @@ const CircularCarousel = ({
     wakeRef.current();
   }, []);
 
+  useImperativeHandle(
+    ref,
+    () => ({
+      stepBy,
+      focusIndex,
+    }),
+    [stepBy, focusIndex],
+  );
+
   const updatePointer = (event: React.PointerEvent<HTMLDivElement>) => {
     const root = rootRef.current;
     if (!root) return;
@@ -1353,6 +1375,8 @@ const CircularCarousel = ({
       </div>
     </div>
   );
-};
+});
+
+CircularCarousel.displayName = "CircularCarousel";
 
 export default CircularCarousel;

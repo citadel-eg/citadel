@@ -372,7 +372,7 @@ export function ProjectEstimator() {
     <section
       ref={sectionRef}
       id="estimator"
-      className="relative w-full py-16 md:py-24 px-6 sm:px-10 md:px-20 bg-[#05070a] border-b border-white/10 overflow-hidden"
+      className="relative w-full py-16 md:py-24 px-6 sm:px-8 md:px-12 lg:px-16 xl:px-20 bg-[#05070a] border-b border-white/10 overflow-hidden"
     >
       <div className="space-y-12 md:space-y-16">
         {/* Section Header Marker */}
@@ -411,7 +411,7 @@ export function ProjectEstimator() {
           className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch border border-white/20 rounded-md overflow-hidden  opacity-0 shadow-[0_0_40px_rgba(0,0,0,0.4)]"
         >
           {/* Left Column: Interactive Selector Choices */}
-          <div className="lg:col-span-7 p-6 sm:p-10 space-y-10 border-b lg:border-b-0 lg:border-r border-white/15">
+          <div className="lg:col-span-7 p-6 sm:p-8 xl:p-10 space-y-8 md:space-y-10 border-b lg:border-b-0 lg:border-r border-white/15">
             {/* Step 1: Need */}
             <div data-animate="estimator-step" className="space-y-4">
               <div className="flex items-center gap-3">
@@ -458,7 +458,7 @@ export function ProjectEstimator() {
                   PROJECT SCOPE
                 </span>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {scopesList.map((scope) => {
                   const isSelected = selectedScope === scope;
                   return (
@@ -535,7 +535,7 @@ export function ProjectEstimator() {
           </div>
 
           {/* Right Column: Outline Sidebar */}
-          <div className="lg:col-span-5 p-6 sm:p-10 flex flex-col justify-between space-y-6">
+          <div className="lg:col-span-5 p-6 sm:p-8 xl:p-10 flex flex-col justify-between space-y-6">
             <div>
               {/* Header */}
               <div

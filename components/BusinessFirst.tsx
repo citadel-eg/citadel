@@ -212,7 +212,7 @@ export function BusinessFirst({
     <section
       ref={sectionRef}
       id={id}
-      className={`relative w-full px-6 sm:px-10 md:px-20 bg-[#05070a] border-b border-white/10 ${className}`}
+      className={`relative w-full px-6 sm:px-8 md:px-12 lg:px-16 xl:px-20 bg-[#05070a] border-b border-white/10 ${className}`}
     >
       <div className="space-y-12">
         {/* Section Header Marker */}
@@ -284,7 +284,7 @@ export function BusinessFirst({
                 >
                   {/* Stepped Box with High-End Interactive Hover */}
                   <div
-                    style={{ marginLeft: `${indentRem}rem` }}
+                    style={{ marginLeft: `clamp(0rem, ${index * 5}vw, ${indentRem}rem)` }}
                     className="group relative flex items-center justify-between px-6 py-4.5 rounded-sm transition-all duration-300 hover:bg-[#0c1422]/50 border border-white/15 hover:border-brand/70 text-white hover:shadow-[0_0_24px_rgba(196,162,84,0.18)] hover:translate-x-1.5 cursor-pointer backdrop-blur-xs overflow-hidden"
                   >
                     {/* Ambient gold edge highlight that activates on hover */}
@@ -308,7 +308,7 @@ export function BusinessFirst({
                   {index < steps.length - 1 && (
                     <div
                       data-animate="step-connector"
-                      style={{ marginLeft: `${indentRem + 1.25}rem` }}
+                      style={{ marginLeft: `calc(clamp(0rem, ${index * 5}vw, ${indentRem}rem) + 1.25rem)` }}
                       className="text-white/40 text-lg font-mono transition-colors duration-200 py-0.5 origin-top"
                     >
                       ↓

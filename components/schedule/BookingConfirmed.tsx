@@ -173,8 +173,8 @@ export function BookingConfirmed({
 
   return (
     <div className="space-y-6 my-auto">
-      <div className="border border-brand/40 bg-brand/10 p-6 sm:p-8 rounded-sm space-y-4 shadow-[0_0_30px_rgba(196,162,84,0.12)]">
-        <div className="flex items-center justify-between">
+      <div className="border border-brand/40 bg-brand/10 p-4 sm:p-8 rounded-sm space-y-4 shadow-[0_0_30px_rgba(196,162,84,0.12)]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
           <span className="text-[11px] font-mono tracking-[2px] uppercase text-brand font-bold">
             ✓ REQUEST SUBMITTED · PENDING CONFIRMATION
           </span>
@@ -184,7 +184,7 @@ export function BookingConfirmed({
         </div>
 
         <div>
-          <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+          <h3 className="text-xl sm:text-3xl font-bold text-white tracking-tight">
             Request Received for {booking.dateDisplay}
           </h3>
           <p className="text-xs sm:text-sm text-white/70 mt-1 leading-relaxed">
@@ -193,21 +193,21 @@ export function BookingConfirmed({
         </div>
 
         <div className="space-y-2 py-3 border-y border-white/15 text-sm">
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-0.5 sm:gap-1">
             <span className="text-white/50 font-mono text-xs">REQUESTED TIME:</span>
-            <span className="text-white font-semibold font-mono">
+            <span className="text-white font-semibold font-mono text-xs sm:text-sm">
               {booking.timeSlot} (Cairo Time)
             </span>
           </div>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-0.5 sm:gap-1">
             <span className="text-white/50 font-mono text-xs">ATTENDEE:</span>
-            <span className="text-white font-medium">
+            <span className="text-white font-medium text-xs sm:text-sm">
               {booking.name} ({booking.company})
             </span>
           </div>
-          <div className="flex justify-between items-center">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-0.5 sm:gap-1">
             <span className="text-white/50 font-mono text-xs">STATUS:</span>
-            <span className="text-brand font-mono text-xs font-semibold bg-brand/15 px-2 py-0.5 rounded-xs border border-brand/30">
+            <span className="text-brand font-mono text-xs font-semibold bg-brand/15 px-2 py-0.5 rounded-xs border border-brand/30 self-start sm:self-auto">
               Pending Host Review (Reply within 2–4 hrs)
             </span>
           </div>

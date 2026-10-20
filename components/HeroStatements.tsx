@@ -283,10 +283,10 @@ export function HeroStatements() {
           const currentX = Number(gsap.getProperty(modelEl, "x")) || 0;
           const currentY = Number(gsap.getProperty(modelEl, "y")) || 0;
 
-          // 1. Center horizontally in Hero view
-          const isDesktop = window.innerWidth >= 1024;
+          // 1. Center horizontally in Hero view (2-column layout on lg >= 1024px requires horizontal shift)
+          const isTwoCol = window.innerWidth >= 1024;
           let targetX = 0;
-          if (isDesktop) {
+          if (isTwoCol) {
             const naturalModelCenterX =
               modelRect.left + modelRect.width / 2 - currentX;
             const containerCenterX =
@@ -310,19 +310,75 @@ export function HeroStatements() {
           return { x: targetX, y: targetY };
         };
 
-        // Initialize model at hero offset and full scale immediately
+        const getHeroScale = () => {
+          if (typeof window === "undefined") return 1.15;
+          const h = window.innerHeight;
+          const w = window.innerWidth;
+
+          // Tall screens (e.g. 1200x1900, iPad Pro portrait, vertical monitors)
+          if (h >= 1600) return 1.35;
+          if (h >= 1300) return 1.28;
+          if (h >= 1050) return 1.22;
+
+          if (w >= 1024) return 1.16; // Commanding on desktop & landscape tablet
+          if (w >= 768) return 1.1; // Well-proportioned on tablet
+          if (h < 680) return 0.92; // Compact phones
+          return 1.02; // Prominent on mobile
+        };
+
+        const getStatementsScale = () => {
+          if (typeof window === "undefined") return 1.0;
+          const h = window.innerHeight;
+          const w = window.innerWidth;
+
+          // Tall screens (e.g. 1200x1900): commanding presence filling the height
+          if (h >= 1600) return 1.12;
+          if (h >= 1300) return 1.08;
+          if (h >= 1050) return 1.04;
+
+          // Desktop & landscape tablet (>= 1024px): side-by-side
+          if (w >= 1024) {
+            if (h < 750) return 0.9;
+            return 1.0;
+          }
+
+          // Tablet portrait (>= 768px)
+          if (w >= 768) {
+            if (h < 750) return 0.82;
+            return 0.9;
+          }
+
+          // Mobile (< 768px): scaled down so statement text and model both fit comfortably
+          if (h < 680) return 0.72; // Compact phones (iPhone SE)
+          if (h < 780) return 0.8; // Medium phones
+          return 0.88; // Taller modern phones
+        };
+
+        // Initialize model at hero offset and proud hero scale immediately
         const initialOffset = getHeroOffset();
         gsap.set(modelTransitionRef.current, {
           x: initialOffset.x,
           y: initialOffset.y,
-          scale: 0.8,
+          scale: getHeroScale(),
           transformOrigin: "center center",
         });
 
         onRefreshHandler = () => {
-          if (activePhaseRef.current === "all" && modelTransitionRef.current) {
-            const offset = getHeroOffset();
-            gsap.set(modelTransitionRef.current, { x: offset.x, y: offset.y });
+          if (modelTransitionRef.current) {
+            if (activePhaseRef.current === "all") {
+              const offset = getHeroOffset();
+              gsap.set(modelTransitionRef.current, {
+                x: offset.x,
+                y: offset.y,
+                scale: getHeroScale(),
+              });
+            } else {
+              gsap.set(modelTransitionRef.current, {
+                x: 0,
+                y: 0,
+                scale: getStatementsScale(),
+              });
+            }
           }
         };
         ScrollTrigger.addEventListener("refresh", onRefreshHandler);
@@ -398,19 +454,19 @@ export function HeroStatements() {
           );
         }
 
-        // Scrub single 3D model: starts proud in Hero (0.88), glides & expands to full old statement size (1.05)
+        // Scrub single 3D model: starts proud and larger in Hero, transitions to compact scale in Statements
         if (modelTransitionRef.current) {
           masterTl.fromTo(
             modelTransitionRef.current,
             {
               x: () => getHeroOffset().x,
               y: () => getHeroOffset().y,
-              scale: 0.8,
+              scale: () => getHeroScale(),
             },
             {
               x: 0,
               y: 0,
-              scale: 1.1,
+              scale: () => getStatementsScale(),
               ease: "power2.inOut",
               duration: heroDuration,
             },
@@ -574,7 +630,7 @@ export function HeroStatements() {
       style={{ height: `${100 + statements.length * 70}vh` }}
     >
       {/* Sticky Stage pinned across entire Hero + 8-Phase Architectural Journey */}
-      <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden px-6 sm:px-10 md:px-20 pt-20 pb-6 sm:pb-8">
+      <div className="sticky top-0 h-[100dvh] min-h-[100dvh] w-full flex flex-col justify-start lg:justify-center overflow-hidden px-4 sm:px-6 md:px-10 lg:px-14 xl:px-20 pt-20 sm:pt-24 pb-3 sm:pb-6">
         {/* Background Particles: full starry ambience in Hero, gently dimmed in Statements */}
         <div
           ref={particlesRef}
@@ -596,33 +652,33 @@ export function HeroStatements() {
         </div>
         <div
           ref={innerContainerRef}
-          className="w-full h-full relative flex items-center justify-center"
+          className="w-full h-full relative flex flex-col justify-start lg:justify-center items-center min-h-0 pt-2 sm:pt-3 lg:pt-0"
         >
           {/* Hero Billboard Header Layer (Active at scroll 0, smoothly scrubs away as user scrolls) */}
           <div
             ref={heroHeaderRef}
-            className={`absolute top-0  inset-x-0 mx-auto max-w-5xl text-center px-4 z-20 will-change-transform ${
+            className={`absolute top-0 inset-x-0 mx-auto max-w-5xl text-center px-3 sm:px-4 z-20 will-change-transform ${
               isHero ? "pointer-events-auto" : "pointer-events-none"
             }`}
           >
             <div
               data-animate="hero-tag"
-              className="flex items-center justify-center gap-3 mb-2 sm:mb-3"
+              className="flex items-center justify-center gap-2 sm:gap-3 mb-2 sm:mb-3"
             >
-              <span className="w-6 h-px bg-brand/60" />
-              <span className="text-xs sm:text-[13px] font-semibold tracking-[3px] uppercase text-brand font-mono">
+              <span className="w-3.5 sm:w-6 h-px bg-brand/60 shrink-0" />
+              <span className="text-[10px] xs:text-xs sm:text-[13px] font-semibold tracking-[1.5px] xs:tracking-[2px] sm:tracking-[3px] uppercase text-brand font-mono text-center">
                 CITADEL / SMART SOLUTIONS
               </span>
-              <span className="w-6 h-px bg-brand/60" />
+              <span className="w-3.5 sm:w-6 h-px bg-brand/60 shrink-0" />
             </div>
 
-            <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-[54px] xl:text-[62px] font-bold text-white uppercase tracking-[1.5px] sm:tracking-[2px] leading-[1.08] max-w-5xl mx-auto">
+            <h1 className="text-xl sm:text-2xl md:text-5xl lg:text-[54px] xl:text-[62px] font-bold text-white uppercase sm:tracking-[1.5px] md:tracking-[2px] leading-[1.08] max-w-5xl mx-auto">
               <span className="block overflow-hidden py-0.5">
                 <span data-animate="hero-line" className="block">
                   SYSTEMS THAT MAKE
                 </span>
               </span>
-              <span className="block overflow-hidden py-0.5">
+              <span className="block overflow-hidden py-0.5 leading-[1.3]">
                 <span data-animate="hero-line" className="block text-white">
                   YOUR BUSINESS STRONGER.
                 </span>
@@ -630,13 +686,13 @@ export function HeroStatements() {
             </h1>
           </div>
 
-          {/* Unified Two-Column Layout (Statements on left, Single 3D Model on right) */}
-          <div className="w-full max-w-7xl 2xl:max-w-384 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center z-10">
+          {/* Layout: Column on mobile, tablet & portrait (< lg:), 2-column on landscape tablet & desktop (lg:) */}
+          <div className="w-full max-w-7xl 2xl:max-w-384 mx-auto grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4 lg:gap-8 xl:gap-16 items-center z-10 my-auto lg:my-0">
             {/* Left Column: Statements UI & Controls */}
             <div
               ref={statementsTextRef}
               style={{ opacity: 0 }}
-              className={`relative flex flex-col items-start space-y-6 md:space-y-8 will-change-transform opacity-0 ${
+              className={`relative flex flex-col items-start space-y-2 sm:space-y-3 lg:space-y-4 xl:space-y-6 will-change-transform opacity-0 ${
                 isHero
                   ? "pointer-events-none select-none"
                   : "pointer-events-auto"
@@ -646,15 +702,15 @@ export function HeroStatements() {
               <div
                 ref={watermarkRef}
                 style={{ opacity: 0 }}
-                className="absolute -left-4 sm:-left-8 -top-14 sm:-top-20 text-[120px] sm:text-[180px] font-black font-mono text-white/[0.035] pointer-events-none select-none leading-none -z-10 opacity-0"
+                className="absolute -left-3 sm:-left-8 -top-6 sm:-top-10 lg:-top-16 text-[80px] sm:text-[130px] xl:text-[180px] font-black font-mono text-white/[0.035] pointer-events-none select-none leading-none -z-10 opacity-0"
                 aria-hidden="true"
               >
                 {currentStatement.id}
               </div>
 
               {/* 8-Phase Architectural Segment Progress Track & Slide Navigation */}
-              <div className="flex flex-wrap items-center gap-2 sm:gap-3 pb-1 select-none">
-                <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3 pb-0.5 select-none">
+                <div className="flex items-center gap-1 sm:gap-1.5">
                   {statements.map((s, idx) => (
                     <button
                       key={s.id}
@@ -662,29 +718,29 @@ export function HeroStatements() {
                       onClick={() => goToSlide(idx)}
                       aria-label={`Jump to Phase 0${s.phaseNum}`}
                       title={`Phase 0${s.phaseNum}: ${s.title.replace("\n", " ")}`}
-                      className={`h-2 transition-all duration-300 rounded-full cursor-pointer focus:outline-none focus:ring-1 focus:ring-brand ${
+                      className={`h-1.5 transition-all duration-300 rounded-full cursor-pointer focus:outline-none focus:ring-1 focus:ring-brand ${
                         idx === activeSlideIndex
-                          ? "w-8 sm:w-10 bg-brand shadow-[0_0_12px_rgba(196,162,84,0.7)]"
+                          ? "w-5 sm:w-8 bg-brand shadow-[0_0_12px_rgba(196,162,84,0.7)]"
                           : idx < activeSlideIndex
-                            ? "w-2.5 sm:w-3 bg-white/40 hover:bg-white/70"
-                            : "w-2.5 sm:w-3 bg-white/10 hover:bg-white/40"
+                            ? "w-1.5 sm:w-2.5 bg-white/40 hover:bg-white/70"
+                            : "w-1.5 sm:w-2.5 bg-white/10 hover:bg-white/40"
                       }`}
                     />
                   ))}
                 </div>
-                <span className="text-[10px] sm:text-[11px] font-mono tracking-[2px] uppercase text-brand/90 font-semibold">
+                <span className="text-[9px] sm:text-[10px] md:text-[11px] font-mono tracking-[1.5px] sm:tracking-[2px] uppercase text-brand/90 font-semibold">
                   PHASE 0{activeSlideIndex + 1} / 08
                 </span>
               </div>
 
               <div
                 ref={textCardRef}
-                className="flex flex-col items-start space-y-5 md:space-y-7"
+                className="flex flex-col items-start space-y-1.5 sm:space-y-2.5 lg:space-y-3 xl:space-y-5"
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <span
                     ref={tagRef}
-                    className="text-xs sm:text-[13px] font-semibold tracking-[3px] uppercase text-brand font-mono"
+                    className="text-[10px] xs:text-[11px] sm:text-xs md:text-[13px] font-semibold tracking-[2px] sm:tracking-[3px] uppercase text-brand font-mono"
                   >
                     {currentStatement.tag}
                   </span>
@@ -692,14 +748,14 @@ export function HeroStatements() {
 
                 <h2
                   ref={titleRef}
-                  className="text-3xl sm:text-5xl md:text-6xl lg:text-[64px] font-bold tracking-tight text-white uppercase leading-[1.05] whitespace-pre-line"
+                  className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tight text-white uppercase leading-[1.08] whitespace-pre-line"
                 >
                   {currentStatement.title}
                 </h2>
 
                 <p
                   ref={descRef}
-                  className="text-base sm:text-xl text-white/60 font-normal leading-relaxed max-w-xl"
+                  className="text-xs sm:text-sm md:text-base text-white/70 font-normal leading-relaxed max-w-xl"
                 >
                   {currentStatement.description}
                 </p>
@@ -707,11 +763,11 @@ export function HeroStatements() {
                 {currentStatement.hasCTA && (
                   <div
                     ref={ctaRef}
-                    className="pt-2 animate-in fade-in duration-300"
+                    className="pt-1 animate-in fade-in duration-300"
                   >
                     <Link
                       href="#schedule"
-                      className="inline-flex items-center gap-3 border border-white/80 hover:border-brand hover:text-brand px-7 py-4 text-xs sm:text-sm font-semibold tracking-[2px] uppercase text-white transition-all group"
+                      className="inline-flex items-center gap-2 sm:gap-3 border border-white/80 hover:border-brand hover:text-brand px-4 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm font-semibold tracking-[1.5px] sm:tracking-[2px] uppercase text-white transition-all group"
                     >
                       <span>START A CONVERSATION</span>
                       <span className="text-base leading-none transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
@@ -744,7 +800,7 @@ export function HeroStatements() {
                     enablePhaseHover={false}
                     enablePhaseClick={false}
                     spinOnPhase8={true}
-                    heightClass="h-[440px] sm:h-[520px] lg:h-[580px] xl:h-[620px]"
+                    heightClass="citadel-hero-model-frame"
                     onReady={reportModelReady}
                   />
                 </div>

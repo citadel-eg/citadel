@@ -213,7 +213,7 @@ export function ProjectGallery({
     <section
       ref={sectionRef}
       id="work"
-      className="relative w-full py-16 md:py-24 px-6 sm:px-10 md:px-20 border-b border-white/10"
+      className="relative w-full py-16 md:py-24 px-6 sm:px-8 md:px-12 lg:px-16 xl:px-20 border-b border-white/10"
     >
       <div className="space-y-10 md:space-y-12">
         {/* ==================== SECTION HEADER & TABS ==================== */}

@@ -233,6 +233,19 @@ export function Citadel3DModel({
     rotY: 0,
     rotX: 0,
   });
+  const touchStateRef = useRef<{
+    startX: number;
+    startY: number;
+    rotY: number;
+    rotX: number;
+    intent: "idle" | "horizontal_drag" | "vertical_scroll";
+  }>({
+    startX: 0,
+    startY: 0,
+    rotY: 0,
+    rotX: 0,
+    intent: "idle",
+  });
   const reqIdRef = useRef<number | null>(null);
   const isVisibleRef = useRef<boolean>(true);
   const pulseRingRef = useRef<THREE.LineLoop | null>(null);
@@ -1141,51 +1154,80 @@ export function Citadel3DModel({
     setHoveredPhase(null);
   }, [handleMouseUp]);
 
-  // Touch support for mobile / tablets
+  // Touch support for mobile / tablets with smart directional filtering (smooth native vertical scroll)
   const handleTouchStart = useCallback(
     (e: React.TouchEvent<HTMLDivElement>) => {
       if (!interactive || e.touches.length === 0) return;
-      isMouseDownRef.current = true;
-      setIsDragging(true);
       const touch = e.touches[0];
-      dragStartRef.current = {
-        x: touch.clientX,
-        y: touch.clientY,
+      touchStateRef.current = {
+        startX: touch.clientX,
+        startY: touch.clientY,
         rotY: towerGroupRef.current?.rotation.y || RESTING_ROT_Y,
         rotX: towerGroupRef.current?.rotation.x || RESTING_ROT_X,
+        intent: "idle",
       };
+      // Do not set isMouseDownRef or isDragging yet; wait to determine gesture direction
     },
     [interactive],
   );
 
   const handleTouchMove = useCallback(
     (e: React.TouchEvent<HTMLDivElement>) => {
-      if (!interactive || !isMouseDownRef.current || e.touches.length === 0)
+      if (!interactive || e.touches.length === 0) return;
+      const state = touchStateRef.current;
+      if (state.intent === "vertical_scroll") {
+        // Vertical scroll is active: let the browser scroll the page natively with zero friction
         return;
-      const touch = e.touches[0];
-      const deltaX = touch.clientX - dragStartRef.current.x;
-      const deltaY = touch.clientY - dragStartRef.current.y;
+      }
 
-      if (towerGroupRef.current) {
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - state.startX;
+      const deltaY = touch.clientY - state.startY;
+      const absX = Math.abs(deltaX);
+      const absY = Math.abs(deltaY);
+
+      if (state.intent === "idle") {
+        if (absX < 8 && absY < 8) return;
+
+        // If movement is vertical: yield immediately to native page scroll
+        if (absY >= absX) {
+          state.intent = "vertical_scroll";
+          isMouseDownRef.current = false;
+          setIsDragging(false);
+          return;
+        }
+
+        // If movement is predominantly horizontal: take control for 3D rotation
+        if (absX > absY * 1.25) {
+          state.intent = "horizontal_drag";
+          isMouseDownRef.current = true;
+          setIsDragging(true);
+        } else {
+          state.intent = "vertical_scroll";
+          return;
+        }
+      }
+
+      if (state.intent === "horizontal_drag" && towerGroupRef.current) {
         const targetY = lockRotationYRef.current
-          ? dragStartRef.current.rotY
+          ? state.rotY
           : THREE.MathUtils.clamp(
-              dragStartRef.current.rotY + deltaX * 0.005,
+              state.rotY + deltaX * 0.005,
               MIN_ROT_Y,
               MAX_ROT_Y,
             );
         const targetX = lockRotationXRef.current
           ? THREE.MathUtils.clamp(
-              dragStartRef.current.rotX + deltaY * 0.004,
+              state.rotX + deltaY * 0.002,
               MIN_ROT_X,
               MAX_ROT_X,
             )
-          : dragStartRef.current.rotX + deltaY * 0.006;
+          : state.rotX + deltaY * 0.005;
 
         gsap.to(towerGroupRef.current.rotation, {
           y: targetY,
           x: targetX,
-          duration: 0.35,
+          duration: 0.25,
           ease: "power2.out",
           overwrite: "auto",
         });
@@ -1193,6 +1235,17 @@ export function Citadel3DModel({
     },
     [interactive],
   );
+
+  const handleTouchEnd = useCallback(() => {
+    const wasDragging = touchStateRef.current.intent === "horizontal_drag";
+    touchStateRef.current.intent = "idle";
+    isMouseDownRef.current = false;
+    setIsDragging(false);
+
+    if (wasDragging) {
+      handleMouseUp();
+    }
+  }, [handleMouseUp]);
 
   // Click on tier to select phase (only if enabled)
   const handleClick = useCallback(() => {
@@ -1220,9 +1273,10 @@ export function Citadel3DModel({
       onMouseLeave={handleMouseLeave}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
-      onTouchEnd={handleMouseUp}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchEnd}
       onClick={enablePhaseClick ? handleClick : undefined}
-      className={`relative w-full ${heightClass} overflow-hidden flex flex-col items-center justify-center select-none group ${
+      className={`relative w-full ${heightClass} overflow-hidden flex flex-col items-center justify-center select-none group touch-pan-y ${
         borderless
           ? "bg-transparent border-none rounded-none"
           : "rounded-md border border-white/10 bg-[#05070a]"
@@ -1231,7 +1285,7 @@ export function Citadel3DModel({
       {/* 3D WebGL Canvas */}
       <canvas
         ref={canvasRef}
-        className="absolute inset-0 w-full h-full block z-0"
+        className="absolute inset-0 w-full h-full block z-0 touch-pan-y"
       />
 
       {/* 2D Architectural Fallback if WebGL fails or context is lost */}

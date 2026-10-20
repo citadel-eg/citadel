@@ -255,10 +255,10 @@ export function Statements() {
       style={{ height: `${statements.length * 70}vh` }}
     >
       {/* Sticky Pinned Stage taking full viewport height */}
-      <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden px-6 sm:px-10 md:px-20 py-8 md:py-12">
-        <div className="w-full grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+      <div className="sticky top-0 h-screen w-full flex items-center justify-center overflow-hidden px-6 sm:px-8 md:px-12 lg:px-16 xl:px-20 pt-20 sm:pt-22 pb-4 sm:pb-6">
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 lg:gap-12 xl:gap-16 items-center min-h-0">
           {/* Left Column Text & Action matching HeroMain */}
-          <div className="relative flex flex-col items-start space-y-6 md:space-y-8">
+          <div className="relative flex flex-col items-start space-y-4 md:space-y-6">
             {/* Ambient Watermark Number */}
             <div
               ref={watermarkRef}
@@ -270,7 +270,7 @@ export function Statements() {
 
             {/* 8-Phase Architectural Segment Progress Track & Slide Navigation */}
             <div className="flex flex-wrap items-center gap-2 sm:gap-3 pb-1 select-none">
-              <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="flex items-center gap-1 sm:gap-2">
                 {statements.map((s, idx) => (
                   <button
                     key={s.id}
@@ -278,24 +278,24 @@ export function Statements() {
                     onClick={() => goToSlide(idx)}
                     aria-label={`Jump to Phase 0${s.phaseNum}`}
                     title={`Phase 0${s.phaseNum}: ${s.title.replace("\n", " ")}`}
-                    className={`h-2 transition-all duration-300 rounded-full cursor-pointer focus:outline-none focus:ring-1 focus:ring-brand ${
+                    className={`h-1.5 sm:h-2 transition-all duration-300 rounded-full cursor-pointer focus:outline-none focus:ring-1 focus:ring-brand ${
                       idx === activeIndex
-                        ? "w-8 sm:w-10 bg-brand shadow-[0_0_12px_rgba(196,162,84,0.7)]"
+                        ? "w-6 sm:w-10 bg-brand shadow-[0_0_12px_rgba(196,162,84,0.7)]"
                         : idx < activeIndex
-                          ? "w-2.5 sm:w-3 bg-white/40 hover:bg-white/70"
-                          : "w-2.5 sm:w-3 bg-white/10 hover:bg-white/40"
+                          ? "w-2 sm:w-3 bg-white/40 hover:bg-white/70"
+                          : "w-2 sm:w-3 bg-white/10 hover:bg-white/40"
                     }`}
                   />
                 ))}
               </div>
-              <span className="text-[10px] sm:text-[11px] font-mono tracking-[2px] uppercase text-brand/90 font-semibold">
+              <span className="text-[9px] sm:text-[11px] font-mono tracking-[2px] uppercase text-brand/90 font-semibold">
                 PHASE 0{activeIndex + 1} / 08
               </span>
             </div>
 
             <div
               ref={textCardRef}
-              className="flex flex-col items-start space-y-5 md:space-y-7"
+              className="flex flex-col items-start space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6"
             >
               <div className="flex items-center gap-3">
                 <span
@@ -308,14 +308,14 @@ export function Statements() {
 
               <h2
                 ref={titleRef}
-                className="text-3xl sm:text-5xl md:text-6xl lg:text-[64px] font-bold tracking-tight text-white uppercase leading-[1.05] whitespace-pre-line"
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-[60px] font-bold tracking-tight text-white uppercase leading-[1.05] whitespace-pre-line"
               >
                 {current.title}
               </h2>
 
               <p
                 ref={descRef}
-                className="text-base sm:text-xl text-white/60 font-normal leading-relaxed max-w-xl"
+                className="text-xs sm:text-sm md:text-base text-white/60 font-normal leading-relaxed max-w-xl"
               >
                 {current.description}
               </p>
@@ -323,11 +323,11 @@ export function Statements() {
               {current.hasCTA && (
                 <div
                   ref={ctaRef}
-                  className="pt-2 animate-in fade-in duration-300"
+                  className="pt-1 animate-in fade-in duration-300"
                 >
                   <Link
                     href="#schedule"
-                    className="inline-flex items-center gap-3 border border-white/80 hover:border-brand hover:text-brand px-7 py-4 text-xs sm:text-sm font-semibold tracking-[2px] uppercase text-white transition-all group"
+                    className="inline-flex items-center gap-3 border border-white/80 hover:border-brand hover:text-brand px-5 sm:px-7 py-2.5 sm:py-3.5 text-xs sm:text-sm font-semibold tracking-[2px] uppercase text-white transition-all group"
                   >
                     <span>START A CONVERSATION</span>
                     <span className="text-base leading-none transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
@@ -353,7 +353,7 @@ export function Statements() {
               lockRotationX={true}
               lockRotationY={false}
               spinOnPhase8={true}
-              heightClass="h-[420px] sm:h-[500px] lg:h-[560px]"
+              heightClass="h-[220px] xs:h-[260px] sm:h-[300px] md:h-[380px] lg:h-[460px] xl:h-[560px]"
             />
           </div>
         </div>

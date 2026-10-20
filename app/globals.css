@@ -103,3 +103,69 @@
 @utility opacity-72 {
   opacity: 0.72;
 }
+
+/* Citadel Hero & Statements 3D Model responsive frame */
+.citadel-hero-model-frame {
+  height: 400px;
+}
+@media (min-width: 380px) {
+  .citadel-hero-model-frame {
+    height: 490px !important;
+  }
+}
+@media (min-width: 480px) {
+  .citadel-hero-model-frame {
+    height: 490px;
+  }
+}
+@media (min-width: 640px) {
+  .citadel-hero-model-frame {
+    height: 460px;
+  }
+}
+@media (min-width: 768px) {
+  .citadel-hero-model-frame {
+    height: 420px !important;
+  }
+}
+@media (min-width: 1024px) {
+  .citadel-hero-model-frame {
+    height: 420px !important;
+  }
+
+}
+
+/* Height-aware boosts for tall viewports (e.g. 1200x1900, vertical monitors, iPad Pro portrait) */
+@media (min-height: 950px) {
+  .citadel-hero-model-frame {
+    height: 580px;
+  }
+}
+@media (min-height: 1100px) {
+  .citadel-hero-model-frame {
+    height: 680px !important;
+  }
+}
+@media (min-height: 1350px) {
+  .citadel-hero-model-frame {
+    height: 800px;
+  }
+}
+@media (min-height: 1650px) {
+  .citadel-hero-model-frame {
+    height: 920px;
+  }
+}
+
+/* Short height constraints: ensure model never pushes content out of view on low-height screens */
+@media (max-height: 700px) and (max-width: 1279px) {
+  .citadel-hero-model-frame {
+    height: 300px;
+  }
+}
+@media (max-height: 600px) and (max-width: 1279px) {
+  .citadel-hero-model-frame {
+    height: 240px;
+  }
+}
+

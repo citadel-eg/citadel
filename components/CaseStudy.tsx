@@ -1,9 +1,12 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { motion } from "@/lib/motion";
-import CircularCarousel, { CircularCarouselItem } from "./CircularCarousel";
+import CircularCarousel, {
+  CircularCarouselItem,
+  CircularCarouselRef,
+} from "./CircularCarousel";
 
 interface CaseStudyData {
   id: string;
@@ -170,10 +173,31 @@ export function CaseStudy({
   const sectionRef = useRef<HTMLElement>(null);
   const detailsRef = useRef<HTMLDivElement>(null);
   const carouselStageRef = useRef<HTMLDivElement>(null);
+  const carouselRef = useRef<CircularCarouselRef>(null);
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [ringInView, setRingInView] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
   const activeCase = CASE_STUDIES[activeIndex] || CASE_STUDIES[0];
+
+  useEffect(() => {
+    const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
+    checkDesktop();
+    window.addEventListener("resize", checkDesktop);
+    return () => window.removeEventListener("resize", checkDesktop);
+  }, []);
+
+  const handlePrev = useCallback(() => {
+    carouselRef.current?.stepBy(-1);
+  }, []);
+
+  const handleNext = useCallback(() => {
+    carouselRef.current?.stepBy(1);
+  }, []);
+
+  const handleSelect = useCallback((index: number) => {
+    carouselRef.current?.focusIndex(index);
+  }, []);
 
   // 1. Scroll Entrance Animation
   useGSAP(
@@ -372,19 +396,21 @@ export function CaseStudy({
         </div>
       </div>
 
-      {/* ==================== 3D PANORAMA RING STAGE (WITH ACTIVE CASE HUD INSIDE) ==================== */}
+      {/* ==================== 3D PANORAMA RING STAGE & ACTIVE CASE HUD ==================== */}
       <div
         ref={carouselStageRef}
         data-animate="case-ring"
         className="relative w-full z-10 text-white mt-2 sm:mt-4"
       >
-        <div style={{ width: "100%", height: "620px", position: "relative" }}>
+        {/* 3D Panorama Stage */}
+        <div className="w-full relative h-[260px] sm:h-[320px] md:h-[400px] lg:h-[600px]">
           <CircularCarousel
+            ref={carouselRef}
             items={CAROUSEL_ITEMS}
             preset="panorama"
             intro="rise"
             playIntro={ringInView}
-            cardWidth={228}
+            cardWidth={isDesktop ? 228 : 190}
             aspectRatio={1.333}
             speed={14}
             gap={22}
@@ -392,94 +418,167 @@ export function CaseStudy({
             perspective={1800}
             parallax={0}
             fadeColor="#05070a"
-            bottomSpace={190}
+            bottomSpace={isDesktop ? 190 : 0}
             className="overflow-visible!"
             onChange={(index) => setActiveIndex(index)}
-          >
-            {/* ==================== ACTIVE CASE BREAKDOWN HUD (DIRECTLY UNDER ACTIVE IMAGE) ==================== */}
-            <div className="max-w-6xl mx-auto absolute inset-x-0 bottom-2 sm:bottom-20 z-20 pointer-events-none">
-              <div className=" px-6 pointer-events-auto">
-                <div
-                  ref={detailsRef}
-                  data-animate="case-hud"
-                  className="relative rounded-xl bg-[#05070a]/85 border border-white/10 backdrop-blur-md p-4 sm:p-5 shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
-                >
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 items-center">
-                    {/* Left 4 Cols: Active Project Title & Badges */}
-                    <div className="lg:col-span-4 space-y-2 border-b lg:border-b-0 lg:border-r border-white/10 pb-3 lg:pb-0 lg:pr-6">
-                      <div
-                        data-switch-anim
-                        className="flex flex-wrap items-center gap-2"
-                      >
-                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-white/10 border border-white/15 text-[10px] font-mono font-semibold text-white uppercase tracking-wider">
-                          <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
-                          {activeCase.number} — {activeCase.name}
-                        </span>
-                      </div>
+          />
+        </div>
 
-                      <h3
-                        data-switch-anim
-                        className="text-lg text-balance font-bold text-white leading-snug tracking-tight"
-                      >
-                        {activeCase.headline}
-                      </h3>
+        {/* ==================== ACTIVE CASE BREAKDOWN HUD ==================== */}
+        {/* Desktop: Floating HUD inside the panorama stage at the bottom */}
+        {/* Mobile/Tablet: Structured card cleanly positioned underneath the 3D panorama */}
+        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-8 mt-4 sm:mt-6 lg:mt-0 lg:absolute lg:inset-x-0 lg:bottom-6 lg:z-20 lg:pointer-events-none">
+          <div className="pointer-events-auto">
+            <div
+              ref={detailsRef}
+              data-animate="case-hud"
+              className="relative rounded-md bg-[#05070a]/95 lg:bg-[#05070a]/85 border border-white/10 backdrop-blur-md p-4 sm:p-5 shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
+            >
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 items-start lg:items-center">
+                {/* Left 4 Cols: Active Project Title & Badges & Controls */}
+                <div className="lg:col-span-4 space-y-2.5 border-b lg:border-b-0 lg:border-r border-white/10 pb-3 lg:pb-0 lg:pr-6">
+                  <div
+                    data-switch-anim
+                    className="flex flex-wrap items-center justify-between gap-2"
+                  >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-white/10 border border-white/15 text-[10px] font-mono font-semibold text-white uppercase tracking-wider">
+                        <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
+                        {activeCase.number} — {activeCase.name}
+                      </span>
+                      {activeCase.metrics && (
+                        <span className="inline-flex items-center px-2 py-0.5 rounded-sm bg-brand/10 border border-brand/25 text-[10px] font-mono font-semibold text-brand uppercase tracking-wider">
+                          {activeCase.metrics}
+                        </span>
+                      )}
                     </div>
 
-                    {/* Right 8 Cols: 3-Column Problem → System → Result */}
-                    <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-                      {/* 01 / PROBLEM */}
-                      <div className="relative pt-2.5 space-y-1">
-                        <div
-                          data-switch-line
-                          className="absolute top-0 left-0 right-0 h-px bg-white/20 origin-left"
-                        />
-                        <div data-switch-anim className="space-y-1">
-                          <span className="text-[11px] font-semibold tracking-[2px] uppercase text-white/90 font-mono block">
-                            01 / PROBLEM
-                          </span>
-                          <p className="text-xs text-white/70 leading-relaxed line-clamp-2 sm:line-clamp-none">
-                            {activeCase.problem}
-                          </p>
-                        </div>
-                      </div>
+                    {/* Step Controls (Prev / Next & Counter) */}
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={handlePrev}
+                        aria-label="Previous project"
+                        className="p-1.5 rounded-sm bg-white/5 hover:bg-white/15 border border-white/10 text-white/70 hover:text-white transition-colors cursor-pointer"
+                      >
+                        <svg
+                          className="w-3.5 h-3.5"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M15 19l-7-7 7-7"
+                          />
+                        </svg>
+                      </button>
+                      <span className="text-[10px] font-mono text-white/50 px-0.5">
+                        {activeCase.number} / {String(CASE_STUDIES.length).padStart(2, "0")}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={handleNext}
+                        aria-label="Next project"
+                        className="p-1.5 rounded-sm bg-white/5 hover:bg-white/15 border border-white/10 text-white/70 hover:text-white transition-colors cursor-pointer"
+                      >
+                        <svg
+                          className="w-3.5 h-3.5"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M9 5l7 7-7 7"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
 
-                      {/* 02 / SYSTEM */}
-                      <div className="relative pt-2.5 space-y-1">
-                        <div
-                          data-switch-line
-                          className="absolute top-0 left-0 right-0 h-px bg-white/20 origin-left"
-                        />
-                        <div data-switch-anim className="space-y-1">
-                          <span className="text-[11px] font-semibold tracking-[2px] uppercase text-white/90 font-mono block">
-                            02 / SYSTEM
-                          </span>
-                          <p className="text-xs text-white/70 leading-relaxed line-clamp-2 sm:line-clamp-none">
-                            {activeCase.system}
-                          </p>
-                        </div>
-                      </div>
+                  <h3
+                    data-switch-anim
+                    className="text-base sm:text-lg text-balance font-bold text-white leading-snug tracking-tight"
+                  >
+                    {activeCase.headline}
+                  </h3>
 
-                      {/* 03 / RESULT */}
-                      <div className="relative pt-2.5 space-y-1">
-                        <div
-                          data-switch-line
-                          className="absolute top-0 left-0 right-0 h-px bg-brand/70 origin-left"
-                        />
-                        <div data-switch-anim className="space-y-1">
-                          <span className="text-[11px] font-semibold tracking-[2px] uppercase text-brand font-mono block">
-                            03 / RESULT
-                          </span>
-                          <p className="text-xs text-white/90 font-medium leading-relaxed line-clamp-2 sm:line-clamp-none">
-                            {activeCase.result}
-                          </p>
-                        </div>
-                      </div>
+                  {/* Dot Indicators */}
+                  <div className="flex items-center gap-1.5 pt-0.5">
+                    {CASE_STUDIES.map((cs, idx) => (
+                      <button
+                        key={cs.id}
+                        type="button"
+                        onClick={() => handleSelect(idx)}
+                        aria-label={`Jump to ${cs.name}`}
+                        className={`h-1 transition-all duration-300 rounded-full cursor-pointer ${
+                          idx === activeIndex
+                            ? "w-5 bg-brand"
+                            : "w-1.5 bg-white/20 hover:bg-white/40"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right 8 Cols: 3-Column Problem → System → Result */}
+                <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-6">
+                  {/* 01 / PROBLEM */}
+                  <div className="relative pt-2.5 space-y-1">
+                    <div
+                      data-switch-line
+                      className="absolute top-0 left-0 right-0 h-px bg-white/20 origin-left"
+                    />
+                    <div data-switch-anim className="space-y-1">
+                      <span className="text-[11px] font-semibold tracking-[2px] uppercase text-white/90 font-mono block">
+                        01 / PROBLEM
+                      </span>
+                      <p className="text-xs text-white/70 leading-relaxed">
+                        {activeCase.problem}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* 02 / SYSTEM */}
+                  <div className="relative pt-2.5 space-y-1">
+                    <div
+                      data-switch-line
+                      className="absolute top-0 left-0 right-0 h-px bg-white/20 origin-left"
+                    />
+                    <div data-switch-anim className="space-y-1">
+                      <span className="text-[11px] font-semibold tracking-[2px] uppercase text-white/90 font-mono block">
+                        02 / SYSTEM
+                      </span>
+                      <p className="text-xs text-white/70 leading-relaxed">
+                        {activeCase.system}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* 03 / RESULT */}
+                  <div className="relative pt-2.5 space-y-1">
+                    <div
+                      data-switch-line
+                      className="absolute top-0 left-0 right-0 h-px bg-brand/70 origin-left"
+                    />
+                    <div data-switch-anim className="space-y-1">
+                      <span className="text-[11px] font-semibold tracking-[2px] uppercase text-brand font-mono block">
+                        03 / RESULT
+                      </span>
+                      <p className="text-xs text-white/90 font-medium leading-relaxed">
+                        {activeCase.result}
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-          </CircularCarousel>
+          </div>
         </div>
       </div>
     </section>

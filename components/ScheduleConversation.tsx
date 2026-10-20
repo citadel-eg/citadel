@@ -254,11 +254,11 @@ export function ScheduleConversation() {
     <section
       ref={sectionRef}
       id="schedule"
-      className="relative w-full py-16 md:py-24 px-6 sm:px-10 md:px-20 bg-[#05070a] border-b border-white/10 overflow-hidden"
+      className="relative w-full py-16 md:py-24 px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 bg-[#05070a] border-b border-white/10 overflow-hidden"
     >
       <div className="space-y-12 md:space-y-16">
         {/* Section Header Marker */}
-        <div data-animate="header-marker" className="flex items-center gap-4">
+        <div data-animate="header-marker" className="flex items-center gap-3 sm:gap-4 flex-wrap">
           <span
             data-animate="header-num"
             className="text-xs sm:text-[13px] font-semibold tracking-[3px] uppercase text-brand font-mono"
@@ -267,7 +267,7 @@ export function ScheduleConversation() {
           </span>
           <span
             data-animate="header-line"
-            className="w-10 h-px bg-white/30 origin-left"
+            className="w-8 sm:w-10 h-px bg-white/30 origin-left"
           />
           <span
             data-animate="header-title"
@@ -306,7 +306,7 @@ export function ScheduleConversation() {
           {/* Right Column: User Information Form or Confirmed State */}
           <div
             data-animate="booking-form-col"
-            className="lg:col-span-6 p-6 sm:p-10 flex flex-col justify-between space-y-8  h-full"
+            className="lg:col-span-6 p-4 sm:p-8 md:p-10 flex flex-col justify-between space-y-6 sm:space-y-8 h-full"
           >
             {confirmedBooking ? (
               <BookingConfirmed

@@ -477,7 +477,7 @@ export function CompanyWhyCitadel() {
 
           <h2
             data-animate="why-title"
-            className="text-4xl sm:text-6xl font-bold text-nowrap text-white tracking-tight leading-[1.05] uppercase"
+            className="text-4xl sm:text-6xl font-bold lg:text-nowrap text-white tracking-tight leading-[1.05] uppercase"
           >
             SIX RULES
             <br />

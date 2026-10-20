@@ -40,7 +40,7 @@ export function CalendarPicker({
   };
 
   return (
-    <div className="border border-brand/40 rounded-sm p-4 sm:p-5 space-y-3.5 shadow-[0_0_25px_rgba(196,162,84,0.12)]">
+    <div className="border border-brand/40 rounded-sm p-3.5 sm:p-5 space-y-3 shadow-[0_0_25px_rgba(196,162,84,0.12)]">
       {/* Calendar Month Navigation Header */}
       <div className="flex items-center justify-between pb-2 border-b border-white/10">
         <div className="flex items-center gap-2">
@@ -73,7 +73,7 @@ export function CalendarPicker({
         {WEEKDAYS.map((wd) => (
           <div
             key={wd}
-            className="text-[11px] font-mono uppercase font-semibold text-white/40 py-1"
+            className="text-[10px] sm:text-[11px] font-mono uppercase font-semibold text-white/40 py-0.5 sm:py-1"
           >
             {wd}
           </div>
@@ -94,7 +94,7 @@ export function CalendarPicker({
               type="button"
               disabled={isPast}
               onClick={() => handleSelectDay(item)}
-              className={`h-8 sm:h-9 flex flex-col items-center justify-center rounded-sm text-xs font-mono transition-all duration-150 relative cursor-pointer active:scale-95 ${
+              className={`h-8 sm:h-10 flex flex-col items-center justify-center rounded-sm text-xs font-mono transition-all duration-150 relative cursor-pointer active:scale-95 min-w-0 ${
                 isSelected
                   ? "bg-brand text-[#1C2633] font-bold shadow-[0_0_12px_rgba(196,162,84,0.35)] scale-105 z-10"
                   : isPast
@@ -106,7 +106,7 @@ export function CalendarPicker({
             >
               <span>{item.dayNum}</span>
               {isToday && !isSelected && (
-                <span className="w-1 h-1 rounded-full bg-brand absolute bottom-1" />
+                <span className="w-1 h-1 rounded-full bg-brand absolute bottom-0.5 sm:bottom-1" />
               )}
             </button>
           );
@@ -114,8 +114,8 @@ export function CalendarPicker({
       </div>
 
       {/* Selected Date Indicator */}
-      <div className="pt-2.5 border-t border-white/10 flex items-center justify-between text-[11px] font-mono">
-        <span className="text-white/40 tracking-wider uppercase">CHOSEN:</span>
+      <div className="pt-2.5 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-[11px] font-mono">
+        <span className="text-white/40 tracking-wider uppercase text-[10px] sm:text-[11px]">CHOSEN:</span>
         <span className="text-white font-bold tracking-wide">
           {selectedDate.fullDisplay}
         </span>
