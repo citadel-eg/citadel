@@ -20,6 +20,8 @@ export interface CircularCarouselItem {
   alt?: string;
   title?: string;
   subtitle?: string;
+  mediaType?: "image" | "video";
+  videoSrc?: string;
 }
 
 export type CircularCarouselPreset =
@@ -1219,6 +1221,20 @@ const CircularCarousel = React.forwardRef<
         : { left: -offset, top: 0, width: cardW, height: cardH };
     const flip = axis === "x" ? " rotateX(180deg)" : " rotateY(180deg)";
     const gone = leaving?.items[index];
+    const isVideo =
+      item.mediaType === "video" ||
+      Boolean(item.videoSrc) ||
+      /\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(item.src);
+    const videoUrl = item.videoSrc || (isVideo ? item.src : undefined);
+
+    const goneIsVideo =
+      gone &&
+      (gone.mediaType === "video" ||
+        Boolean(gone.videoSrc) ||
+        /\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(gone.src));
+    const goneVideoUrl =
+      gone && (gone.videoSrc || (goneIsVideo ? gone.src : undefined));
+
     return (
       <div
         key={`${back ? "b" : "f"}${tile.index}`}
@@ -1233,30 +1249,64 @@ const CircularCarousel = React.forwardRef<
             borderRadius: frameRadius,
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            className="pointer-events-none absolute block max-w-none select-none object-cover [-webkit-user-drag:none]"
-            src={item.src}
-            alt=""
-            draggable={false}
-            decoding="async"
-            style={photoStyle}
-          />
-          {gone && (
+          {isVideo && videoUrl ? (
+            <video
+              className="pointer-events-none absolute block max-w-none select-none object-cover [-webkit-user-drag:none]"
+              src={videoUrl}
+              poster={
+                item.src &&
+                !/\.(mp4|webm|ogg|mov|m4v)(\?.*)?$/i.test(item.src)
+                  ? item.src
+                  : undefined
+              }
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              style={photoStyle}
+            />
+          ) : (
             /* eslint-disable-next-line @next/next/no-img-element */
             <img
-              key={`leaving-${leaving.id}`}
-              className="pointer-events-none absolute block max-w-none select-none object-cover [-webkit-user-drag:none] animate-[circular-carousel-leave_700ms_cubic-bezier(0.33,1,0.68,1)_both]"
-              src={gone.src}
-              alt=""
+              className="pointer-events-none absolute block max-w-none select-none object-cover [-webkit-user-drag:none]"
+              src={item.src}
+              alt={item.alt || ""}
               draggable={false}
               decoding="async"
-              style={{
-                ...photoStyle,
-                animationDelay: `${Math.round(leaving.delays[index])}ms`,
-              }}
+              style={photoStyle}
             />
           )}
+          {gone &&
+            (goneIsVideo && goneVideoUrl ? (
+              <video
+                key={`leaving-${leaving.id}`}
+                className="pointer-events-none absolute block max-w-none select-none object-cover [-webkit-user-drag:none] animate-[circular-carousel-leave_700ms_cubic-bezier(0.33,1,0.68,1)_both]"
+                src={goneVideoUrl}
+                autoPlay
+                muted
+                loop
+                playsInline
+                style={{
+                  ...photoStyle,
+                  animationDelay: `${Math.round(leaving.delays[index])}ms`,
+                }}
+              />
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                key={`leaving-${leaving.id}`}
+                className="pointer-events-none absolute block max-w-none select-none object-cover [-webkit-user-drag:none] animate-[circular-carousel-leave_700ms_cubic-bezier(0.33,1,0.68,1)_both]"
+                src={gone.src}
+                alt=""
+                draggable={false}
+                decoding="async"
+                style={{
+                  ...photoStyle,
+                  animationDelay: `${Math.round(leaving.delays[index])}ms`,
+                }}
+              />
+            ))}
           {back && (
             <div className="pointer-events-none absolute inset-0 bg-black opacity-(--cc-inner)" />
           )}

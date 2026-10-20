@@ -1,184 +1,84 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { motion } from "@/lib/motion";
+import {
+  type CaseStudyData,
+  getProjects,
+  mapSanityToCaseStudy,
+} from "@/lib/sanity";
 import CircularCarousel, {
   CircularCarouselItem,
   CircularCarouselRef,
 } from "./CircularCarousel";
 
-interface CaseStudyData {
-  id: string;
-  number: string;
-  name: string;
-  category: string;
-  headline: string;
-  src: string;
-  alt: string;
-  problem: string;
-  system: string;
-  result: string;
-  metrics?: string;
-}
-
-const CASE_STUDIES: CaseStudyData[] = [
-  {
-    id: "galaxy-store",
-    number: "01",
-    name: "Galaxy Store",
-    category: "Dashboard & Website",
-    headline: "A Storefront. An Operation. A Human Connection.",
-    src: "/galaxy-store.png",
-    alt: "Galaxy Store Case Study - Dashboard and website preview",
-    problem:
-      "Dispatch ran through 14 shared spreadsheets and fragmented phone calls.",
-    system:
-      "Unified customer storefront paired with a real-time internal operations dashboard.",
-    result:
-      "Streamlined course-commerce & automated daily fulfillment operations.",
-    metrics: "14 → 1 Unified Workflow",
-  },
-  {
-    id: "viggo-vet",
-    number: "02",
-    name: "Viggo Vet",
-    category: "Multi-Tenant SaaS",
-    headline: "Modernizing Clinic Operations At Scale.",
-    src: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&q=80&auto=format&fit=crop",
-    alt: "Viggo Vet Multi-Tenant Platform Preview",
-    problem:
-      "Fragmented patient records and manual appointment scheduling across clinics.",
-    system:
-      "Multi-tenant web architecture with modular UI components and role-based access.",
-    result:
-      "Centralized veterinary management with zero cross-tenant data friction.",
-    metrics: "Multi-Tenant Architecture",
-  },
-  {
-    id: "nexus-ledger",
-    number: "03",
-    name: "Nexus Ledger",
-    category: "Fintech Analytics",
-    headline: "High-Frequency Data Turned Into Clarity.",
-    src: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&q=80&auto=format&fit=crop",
-    alt: "Nexus Ledger Analytics Interface",
-    problem:
-      "Delayed financial reporting caused bottlenecks during peak reconciliation hours.",
-    system:
-      "Real-time streaming telemetry dashboard with automated anomaly detection.",
-    result: "Sub-second reporting latency and 60% faster audit sign-offs.",
-    metrics: "<1s Telemetry Latency",
-  },
-  {
-    id: "atlas-logistics",
-    number: "04",
-    name: "Atlas Fleet",
-    category: "Supply Chain OS",
-    headline: "Predictive Routing For Global Freight.",
-    src: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=900&q=80&auto=format&fit=crop",
-    alt: "Atlas Fleet Supply Chain Dashboard",
-    problem:
-      "Blind spots in last-mile transit led to costly SLA penalties and idle fleet time.",
-    system:
-      "Geospatial tracking portal with automated dispatch and driver telemetry.",
-    result:
-      "Reduced idle fleet hours by 34% and eliminated manual check-in calls.",
-    metrics: "-34% Idle Fleet Time",
-  },
-  {
-    id: "pulse-commerce",
-    number: "05",
-    name: "Pulse Headless",
-    category: "E-Commerce Engine",
-    headline: "Sub-Second Storefronts Built For Conversion.",
-    src: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=900&q=80&auto=format&fit=crop",
-    alt: "Pulse Headless Commerce Storefront",
-    problem:
-      "Legacy monolithic templates throttled mobile checkout speeds and SEO rankings.",
-    system:
-      "Edge-cached Next.js storefront coupled with a custom design system.",
-    result:
-      "99+ Core Web Vitals score and a measurable lift in mobile checkout completion.",
-    metrics: "99+ Core Web Vitals",
-  },
-  {
-    id: "aether-ai",
-    number: "06",
-    name: "Aether Studio",
-    category: "AI Video Pipeline",
-    headline: "Prompt-To-Render Workflow In The Browser.",
-    src: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=900&q=80&auto=format&fit=crop",
-    alt: "Aether Studio AI Video Interface",
-    problem:
-      "Content teams juggled disconnected tools to storyboard, generate, and cut clips.",
-    system:
-      "Timeline-driven web studio with real-time scene queuing and asset versioning.",
-    result:
-      "Cut production turnaround from days to minutes with consistent visual output.",
-    metrics: "10x Faster Render Flow",
-  },
-  {
-    id: "kinetix-cloud",
-    number: "07",
-    name: "Kinetix Cloud",
-    category: "DevOps Control Plane",
-    headline: "Zero-Downtime Deployments Visualized.",
-    src: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=900&q=80&auto=format&fit=crop",
-    alt: "Kinetix Cloud Infrastructure Dashboard",
-    problem:
-      "Engineers lacked unified visibility across multi-region container clusters.",
-    system:
-      "Interactive topology graph with instant rollback triggers and live log streaming.",
-    result:
-      "Cut incident triage time by 48% across distributed engineering teams.",
-    metrics: "-48% MTTR",
-  },
-  {
-    id: "verve-health",
-    number: "08",
-    name: "Verve Portal",
-    category: "Patient Telehealth",
-    headline: "Seamless Care From Booking To Follow-Up.",
-    src: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=900&q=80&auto=format&fit=crop",
-    alt: "Verve Telehealth Patient Portal",
-    problem:
-      "High patient drop-off rates during complex intake forms and video onboarding.",
-    system:
-      "One-click WebRTC consultation room integrated with automated digital intake.",
-    result:
-      "Boosted completed virtual consultations by 41% within the first quarter.",
-    metrics: "+41% Completion Rate",
-  },
-];
-
-const CAROUSEL_ITEMS: CircularCarouselItem[] = CASE_STUDIES.map((cs) => ({
-  src: cs.src,
-  alt: cs.alt,
-  title: `${cs.number} — ${cs.name}`,
-  subtitle: cs.category,
-}));
+export type { CaseStudyData };
 
 export interface CaseStudyProps {
   sectionNumber?: string;
   sectionTitle?: string;
   headline?: string;
+  projects?: CaseStudyData[];
 }
 
 export function CaseStudy({
   sectionNumber = "07",
   sectionTitle = "CASE STUDIES",
   headline = "PROBLEM → SYSTEM → RESULT.",
+  projects,
 }: CaseStudyProps = {}) {
   const sectionRef = useRef<HTMLElement>(null);
   const detailsRef = useRef<HTMLDivElement>(null);
   const carouselStageRef = useRef<HTMLDivElement>(null);
   const carouselRef = useRef<CircularCarouselRef>(null);
 
+  const [clientCases, setClientCases] = useState<CaseStudyData[] | null>(null);
+  const [clientLoading, setClientLoading] = useState<boolean>(!projects);
   const [activeIndex, setActiveIndex] = useState(0);
   const [ringInView, setRingInView] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
-  const activeCase = CASE_STUDIES[activeIndex] || CASE_STUDIES[0];
+
+  const cases = useMemo(
+    () => projects ?? clientCases ?? [],
+    [projects, clientCases],
+  );
+  const loading = projects ? false : clientLoading;
+
+  useEffect(() => {
+    if (projects) return;
+    let isMounted = true;
+    getProjects()
+      .then((sanityProjects) => {
+        if (!isMounted) return;
+        setClientCases(sanityProjects.map(mapSanityToCaseStudy));
+        setClientLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error loading case studies:", err);
+        if (!isMounted) return;
+        setClientCases([]);
+        setClientLoading(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [projects]);
+
+  const activeCase = cases[activeIndex] || cases[0];
+
+  const carouselItems: CircularCarouselItem[] = useMemo(
+    () =>
+      cases.map((cs) => ({
+        src: cs.src,
+        alt: cs.alt,
+        title: `${cs.number} — ${cs.name}`,
+        subtitle: cs.category,
+        mediaType: cs.mediaType,
+        videoSrc: cs.videoSrc,
+      })),
+    [cases],
+  );
 
   useEffect(() => {
     const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
@@ -258,328 +158,372 @@ export function CaseStudy({
           )
           .fromTo(
             "[data-animate='headline']",
+            { opacity: 0, y: 16 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: motion.duration.base,
+              ease: motion.ease.out,
+            },
+            0.08,
+          )
+          .fromTo(
+            "[data-animate='sub-copy']",
             { opacity: 0, y: 12 },
-            { opacity: 1, y: 0, duration: 0.45, ease: motion.ease.emphasis },
-            0.05,
+            {
+              opacity: 1,
+              y: 0,
+              duration: motion.duration.base,
+              ease: motion.ease.out,
+            },
+            0.12,
           )
           .to(
             "[data-animate='case-ring']",
             {
               opacity: 1,
-              duration: 0.35,
+              duration: motion.duration.base,
               ease: motion.ease.out,
             },
-            0,
+            0.16,
           )
           .to(
             "[data-animate='case-hud']",
             {
               opacity: 1,
               y: 0,
-              duration: 0.5,
+              duration: motion.duration.base,
               ease: motion.ease.out,
             },
-            0.35,
+            0.2,
           );
       });
 
-      mm.add("(prefers-reduced-motion: reduce)", () => {
-        setRingInView(true);
-        gsap.fromTo(
-          "[data-animate]",
-          { opacity: 0 },
-          {
-            opacity: 1,
-            duration: motion.duration.fast,
-            stagger: motion.staggerFast,
-            scrollTrigger: {
-              trigger: sectionRef.current,
-              start: motion.scrollStart,
-              once: true,
-            },
-          },
-        );
-      });
-
-      return () => mm.revert();
+      return () => {
+        mm.revert();
+      };
     },
-    { scope: sectionRef },
+    { scope: sectionRef, dependencies: [cases.length] },
   );
 
-  // 2. Smooth Crossfade when Active Case Switches
+  // 2. Active Case Change Animation
   useGSAP(
     () => {
-      if (!detailsRef.current) return;
+      if (!detailsRef.current || !activeCase) return;
 
-      const items = detailsRef.current.querySelectorAll("[data-switch-anim]");
-      const lines = detailsRef.current.querySelectorAll("[data-switch-line]");
+      const mm = gsap.matchMedia();
+      mm.add("(prefers-reduced-motion: no-preference)", () => {
+        const textElements =
+          detailsRef.current?.querySelectorAll("[data-switch-anim]");
+        const lineElements =
+          detailsRef.current?.querySelectorAll("[data-switch-line]");
 
-      gsap.killTweensOf([items, lines]);
+        if (textElements && textElements.length > 0) {
+          gsap.fromTo(
+            textElements,
+            { opacity: 0, y: 6 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: motion.duration.fast,
+              stagger: 0.02,
+              ease: motion.ease.out,
+            },
+          );
+        }
 
-      gsap.fromTo(
-        items,
-        {
-          opacity: 0,
-          y: 8,
-          filter: "blur(4px)",
-        },
-        {
-          opacity: 1,
-          y: 0,
-          filter: "blur(0px)",
-          duration: 0.36,
-          stagger: 0.04,
-          ease: "power3.out",
-          clearProps: "filter",
-        },
-      );
+        if (lineElements && lineElements.length > 0) {
+          gsap.fromTo(
+            lineElements,
+            { scaleX: 0 },
+            {
+              scaleX: 1,
+              duration: motion.duration.base,
+              stagger: 0.03,
+              ease: motion.ease.out,
+            },
+          );
+        }
+      });
 
-      gsap.fromTo(
-        lines,
-        { scaleX: 0 },
-        {
-          scaleX: 1,
-          duration: 0.45,
-          stagger: 0.05,
-          ease: "expo.out",
-        },
-      );
+      return () => {
+        mm.revert();
+      };
     },
-    { dependencies: [activeIndex], scope: detailsRef },
+    { scope: detailsRef, dependencies: [activeIndex, activeCase?.id] },
   );
+
+  const hasCases = cases.length > 0;
 
   return (
     <section
       ref={sectionRef}
-      id="work"
-      className="relative w-full py-10 md:py-14 bg-[#05070a] border-b border-white/10 overflow-hidden"
+      className="relative w-full bg-[#05070a] text-white py-16 sm:py-20 lg:py-24 border-t border-white/15 overflow-hidden"
     >
-      {/* Ambient Center Spotlight behind the Panorama Ring */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-225 h-105 rounded-full bg-brand/[0.07] blur-[150px]"
-      />
-
-      {/* ==================== TOP HEADER ==================== */}
-      <div className="px-6 relative z-20">
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          <div className="flex flex-wrap flex-col items-start gap-4 sm:gap-6">
-            <div
-              data-animate="header-marker"
-              className="flex items-center gap-3"
+      {/* Container */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12">
+        {/* Header Block */}
+        <div className="space-y-4 mb-6 sm:mb-8 md:mb-10">
+          <div className="flex items-center gap-3">
+            <span
+              data-animate="header-num"
+              className="text-xs font-mono font-bold tracking-[2px] text-brand uppercase"
             >
-              <span
-                data-animate="header-num"
-                className="text-xs font-semibold tracking-[3px] uppercase text-brand font-mono"
-              >
-                {sectionNumber}
-              </span>
-              <span
-                data-animate="header-line"
-                className="w-8 h-px bg-white/30 origin-left"
+              {sectionNumber}
+            </span>
+            <div
+              data-animate="header-line"
+              className="w-8 h-px bg-white/20 origin-left"
+            />
+            <span
+              data-animate="header-title"
+              className="text-xs font-mono font-medium tracking-[2px] text-white/50 uppercase"
+            >
+              {sectionTitle}
+            </span>
+          </div>
+
+          <h2
+            data-animate="headline"
+            className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white uppercase max-w-4xl"
+          >
+            {headline}
+          </h2>
+
+          <p
+            data-animate="sub-copy"
+            className="text-xs sm:text-sm text-white/60 max-w-2xl leading-relaxed"
+          >
+            A selective look at systems engineered for high-consequence
+            operations. Drag to rotate the panorama or select any case study
+            below.
+          </p>
+        </div>
+
+        {/* Dynamic Content: Sanity CMS Projects or Clean Empty State (NO HARDCODED FALLBACK) */}
+        {!hasCases ? (
+          <div className="py-20 sm:py-28 px-6 max-w-2xl mx-auto text-center border border-white/10 rounded-md bg-white/2 backdrop-blur-xs">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center space-y-4">
+                <div className="w-6 h-6 border-2 border-brand border-t-transparent rounded-full animate-spin" />
+                <p className="text-xs uppercase tracking-[2px] font-mono text-white/50">
+                  Connecting to Citadel CMS...
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <span className="text-[11px] font-mono tracking-[2px] uppercase text-brand">
+                  PORTFOLIO / SANITY CMS
+                </span>
+                <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+                  No Published Case Studies Yet
+                </h3>
+                <p className="text-xs sm:text-sm text-white/60 leading-relaxed max-w-md mx-auto">
+                  Projects published in Sanity Studio will appear here live. Open{" "}
+                  <code className="text-brand font-mono text-xs px-1.5 py-0.5 rounded-sm bg-white/5 border border-white/10">
+                    studio-citadel-portfolio
+                  </code>{" "}
+                  to publish your first case study.
+                </p>
+              </div>
+            )}
+          </div>
+        ) : (
+          /* 3D Circular Carousel Showcase */
+          <div
+            ref={carouselStageRef}
+            data-animate="case-ring"
+            className="relative w-full overflow-visible pb-2 sm:pb-4 md:pb-6"
+          >
+            {/* Top gradient vignette to blend into dark bg */}
+            <div className="absolute top-0 left-0 right-0 h-16 sm:h-24 bg-linear-to-b from-[#05070a] to-transparent z-10 pointer-events-none" />
+
+            {/* Carousel Core */}
+            <div className="relative w-full flex items-center justify-center">
+              <CircularCarousel
+                ref={carouselRef}
+                items={carouselItems}
+                preset="panorama"
+                intro="assemble"
+                playIntro={ringInView}
+                autoplay="off"
+                draggable={true}
+                snap={true}
+                momentum={0.88}
+                speed={0.7}
+                curve={isDesktop ? 0.35 : 0.45}
+                tilt={isDesktop ? 0 : 0.02}
+                perspective={isDesktop ? 2200 : 1600}
+                cardWidth={isDesktop ? 440 : 280}
+                aspectRatio={16 / 10}
+                gap={isDesktop ? 36 : 18}
+                bottomSpace={isDesktop ? 180 : 0}
+                onChange={setActiveIndex}
+                className="w-full"
               />
-              <span
-                data-animate="header-title"
-                className="text-xs font-semibold tracking-[3px] uppercase text-white/80"
-              >
-                {sectionTitle}
-              </span>
             </div>
 
-            <h2
-              data-animate="headline"
-              className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white tracking-tight leading-none uppercase"
-            >
-              {headline}
-            </h2>
-          </div>
-        </div>
-      </div>
+            {/* Bottom gradient vignette for smooth transition to footer */}
+            <div className="absolute bottom-0 left-0 right-0 h-16 sm:h-24 bg-linear-to-t from-[#05070a] to-transparent z-10 pointer-events-none" />
 
-      {/* ==================== 3D PANORAMA RING STAGE & ACTIVE CASE HUD ==================== */}
-      <div
-        ref={carouselStageRef}
-        data-animate="case-ring"
-        className="relative w-full z-10 text-white mt-2 sm:mt-4"
-      >
-        {/* 3D Panorama Stage */}
-        <div className="w-full relative h-[260px] sm:h-[320px] md:h-[400px] lg:h-[600px]">
-          <CircularCarousel
-            ref={carouselRef}
-            items={CAROUSEL_ITEMS}
-            preset="panorama"
-            intro="rise"
-            playIntro={ringInView}
-            cardWidth={isDesktop ? 228 : 190}
-            aspectRatio={1.333}
-            speed={14}
-            gap={22}
-            tilt={2}
-            perspective={1800}
-            parallax={0}
-            fadeColor="#05070a"
-            bottomSpace={isDesktop ? 190 : 0}
-            className="overflow-visible!"
-            onChange={(index) => setActiveIndex(index)}
-          />
-        </div>
-
-        {/* ==================== ACTIVE CASE BREAKDOWN HUD ==================== */}
-        {/* Desktop: Floating HUD inside the panorama stage at the bottom */}
-        {/* Mobile/Tablet: Structured card cleanly positioned underneath the 3D panorama */}
-        <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 md:px-8 mt-4 sm:mt-6 lg:mt-0 lg:absolute lg:inset-x-0 lg:bottom-6 lg:z-20 lg:pointer-events-none">
-          <div className="pointer-events-auto">
+            {/* Active Case Breakdown HUD */}
             <div
               ref={detailsRef}
               data-animate="case-hud"
-              className="relative rounded-md bg-[#05070a]/95 lg:bg-[#05070a]/85 border border-white/10 backdrop-blur-md p-4 sm:p-5 shadow-[0_8px_32px_rgba(0,0,0,0.5)]"
+              className={`w-full z-20 pointer-events-auto transition-all duration-300 ${
+                isDesktop
+                  ? "absolute bottom-4 left-0 right-0 px-4 sm:px-6 md:px-8 lg:px-12"
+                  : "relative mt-4 px-2 sm:px-0"
+              }`}
             >
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-8 items-start lg:items-center">
-                {/* Left 4 Cols: Active Project Title & Badges & Controls */}
-                <div className="lg:col-span-4 space-y-2.5 border-b lg:border-b-0 lg:border-r border-white/10 pb-3 lg:pb-0 lg:pr-6">
-                  <div
-                    data-switch-anim
-                    className="flex flex-wrap items-center justify-between gap-2"
-                  >
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-sm bg-white/10 border border-white/15 text-[10px] font-mono font-semibold text-white uppercase tracking-wider">
-                        <span className="w-1.5 h-1.5 rounded-full bg-brand animate-pulse" />
-                        {activeCase.number} — {activeCase.name}
-                      </span>
-                      {activeCase.metrics && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded-sm bg-brand/10 border border-brand/25 text-[10px] font-mono font-semibold text-brand uppercase tracking-wider">
-                          {activeCase.metrics}
+              <div className="max-w-6xl mx-auto rounded-md bg-[#05070a]/92 backdrop-blur-md border border-white/15 p-4 sm:p-6 md:p-7 shadow-2xl">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-7 items-start">
+                  {/* Left 4 Cols: Active Project Identity & Navigation */}
+                  <div className="lg:col-span-4 space-y-2 border-b lg:border-b-0 lg:border-r border-white/10 pb-4 lg:pb-0 lg:pr-6">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span
+                          data-switch-anim
+                          className="text-xs font-mono font-bold tracking-[2px] text-brand uppercase"
+                        >
+                          {activeCase.number} / {activeCase.category}
                         </span>
-                      )}
+                        {activeCase.metrics && (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-sm bg-brand/10 border border-brand/25 text-[10px] font-mono font-semibold text-brand uppercase tracking-wider">
+                            {activeCase.metrics}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Step Controls (Prev / Next & Counter) */}
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          type="button"
+                          onClick={handlePrev}
+                          aria-label="Previous project"
+                          className="p-1.5 rounded-sm bg-white/5 hover:bg-white/15 border border-white/10 text-white/70 hover:text-white transition-colors cursor-pointer"
+                        >
+                          <svg
+                            className="w-3.5 h-3.5"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M15 19l-7-7 7-7"
+                            />
+                          </svg>
+                        </button>
+                        <span className="text-[10px] font-mono text-white/50 px-0.5">
+                          {activeCase.number} /{" "}
+                          {String(cases.length).padStart(2, "0")}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handleNext}
+                          aria-label="Next project"
+                          className="p-1.5 rounded-sm bg-white/5 hover:bg-white/15 border border-white/10 text-white/70 hover:text-white transition-colors cursor-pointer"
+                        >
+                          <svg
+                            className="w-3.5 h-3.5"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M9 5l7 7-7 7"
+                            />
+                          </svg>
+                        </button>
+                      </div>
                     </div>
 
-                    {/* Step Controls (Prev / Next & Counter) */}
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        type="button"
-                        onClick={handlePrev}
-                        aria-label="Previous project"
-                        className="p-1.5 rounded-sm bg-white/5 hover:bg-white/15 border border-white/10 text-white/70 hover:text-white transition-colors cursor-pointer"
-                      >
-                        <svg
-                          className="w-3.5 h-3.5"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M15 19l-7-7 7-7"
-                          />
-                        </svg>
-                      </button>
-                      <span className="text-[10px] font-mono text-white/50 px-0.5">
-                        {activeCase.number} / {String(CASE_STUDIES.length).padStart(2, "0")}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={handleNext}
-                        aria-label="Next project"
-                        className="p-1.5 rounded-sm bg-white/5 hover:bg-white/15 border border-white/10 text-white/70 hover:text-white transition-colors cursor-pointer"
-                      >
-                        <svg
-                          className="w-3.5 h-3.5"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M9 5l7 7-7 7"
-                          />
-                        </svg>
-                      </button>
+                    <h3
+                      data-switch-anim
+                      className="text-base sm:text-lg text-balance font-bold text-white leading-snug tracking-tight"
+                    >
+                      {activeCase.headline}
+                    </h3>
+
+                    {/* Dot Indicators */}
+                    <div className="flex items-center gap-1.5 pt-0.5">
+                      {cases.map((cs, idx) => (
+                        <button
+                          key={cs.id}
+                          type="button"
+                          onClick={() => handleSelect(idx)}
+                          aria-label={`Jump to ${cs.name}`}
+                          className={`h-1 transition-all duration-300 rounded-full cursor-pointer ${
+                            idx === activeIndex
+                              ? "w-5 bg-brand"
+                              : "w-1.5 bg-white/20 hover:bg-white/40"
+                          }`}
+                        />
+                      ))}
                     </div>
                   </div>
 
-                  <h3
-                    data-switch-anim
-                    className="text-base sm:text-lg text-balance font-bold text-white leading-snug tracking-tight"
-                  >
-                    {activeCase.headline}
-                  </h3>
-
-                  {/* Dot Indicators */}
-                  <div className="flex items-center gap-1.5 pt-0.5">
-                    {CASE_STUDIES.map((cs, idx) => (
-                      <button
-                        key={cs.id}
-                        type="button"
-                        onClick={() => handleSelect(idx)}
-                        aria-label={`Jump to ${cs.name}`}
-                        className={`h-1 transition-all duration-300 rounded-full cursor-pointer ${
-                          idx === activeIndex
-                            ? "w-5 bg-brand"
-                            : "w-1.5 bg-white/20 hover:bg-white/40"
-                        }`}
+                  {/* Right 8 Cols: 3-Column Problem → System → Result */}
+                  <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-6">
+                    {/* 01 / PROBLEM */}
+                    <div className="relative pt-2.5 space-y-1">
+                      <div
+                        data-switch-line
+                        className="absolute top-0 left-0 right-0 h-px bg-white/20 origin-left"
                       />
-                    ))}
-                  </div>
-                </div>
-
-                {/* Right 8 Cols: 3-Column Problem → System → Result */}
-                <div className="lg:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-3.5 sm:gap-6">
-                  {/* 01 / PROBLEM */}
-                  <div className="relative pt-2.5 space-y-1">
-                    <div
-                      data-switch-line
-                      className="absolute top-0 left-0 right-0 h-px bg-white/20 origin-left"
-                    />
-                    <div data-switch-anim className="space-y-1">
-                      <span className="text-[11px] font-semibold tracking-[2px] uppercase text-white/90 font-mono block">
-                        01 / PROBLEM
-                      </span>
-                      <p className="text-xs text-white/70 leading-relaxed">
-                        {activeCase.problem}
-                      </p>
+                      <div data-switch-anim className="space-y-1">
+                        <span className="text-[11px] font-semibold tracking-[2px] uppercase text-white/90 font-mono block">
+                          01 / PROBLEM
+                        </span>
+                        <p className="text-xs text-white/70 leading-relaxed">
+                          {activeCase.problem}
+                        </p>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* 02 / SYSTEM */}
-                  <div className="relative pt-2.5 space-y-1">
-                    <div
-                      data-switch-line
-                      className="absolute top-0 left-0 right-0 h-px bg-white/20 origin-left"
-                    />
-                    <div data-switch-anim className="space-y-1">
-                      <span className="text-[11px] font-semibold tracking-[2px] uppercase text-white/90 font-mono block">
-                        02 / SYSTEM
-                      </span>
-                      <p className="text-xs text-white/70 leading-relaxed">
-                        {activeCase.system}
-                      </p>
+                    {/* 02 / SYSTEM */}
+                    <div className="relative pt-2.5 space-y-1">
+                      <div
+                        data-switch-line
+                        className="absolute top-0 left-0 right-0 h-px bg-white/20 origin-left"
+                      />
+                      <div data-switch-anim className="space-y-1">
+                        <span className="text-[11px] font-semibold tracking-[2px] uppercase text-white/90 font-mono block">
+                          02 / SYSTEM
+                        </span>
+                        <p className="text-xs text-white/70 leading-relaxed">
+                          {activeCase.system}
+                        </p>
+                      </div>
                     </div>
-                  </div>
 
-                  {/* 03 / RESULT */}
-                  <div className="relative pt-2.5 space-y-1">
-                    <div
-                      data-switch-line
-                      className="absolute top-0 left-0 right-0 h-px bg-brand/70 origin-left"
-                    />
-                    <div data-switch-anim className="space-y-1">
-                      <span className="text-[11px] font-semibold tracking-[2px] uppercase text-brand font-mono block">
-                        03 / RESULT
-                      </span>
-                      <p className="text-xs text-white/90 font-medium leading-relaxed">
-                        {activeCase.result}
-                      </p>
+                    {/* 03 / RESULT */}
+                    <div className="relative pt-2.5 space-y-1">
+                      <div
+                        data-switch-line
+                        className="absolute top-0 left-0 right-0 h-px bg-brand/70 origin-left"
+                      />
+                      <div data-switch-anim className="space-y-1">
+                        <span className="text-[11px] font-semibold tracking-[2px] uppercase text-brand font-mono block">
+                          03 / RESULT
+                        </span>
+                        <p className="text-xs text-white/90 font-medium leading-relaxed">
+                          {activeCase.result}
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );

@@ -10,6 +10,8 @@ import { CaseStudy } from "@/components/CaseStudy";
 import { ScheduleConversation } from "@/components/ScheduleConversation";
 import { FooterCTA } from "@/components/FooterCTA";
 
+import { getProjects, mapSanityToCaseStudy } from "@/lib/sanity";
+
 export const metadata: Metadata = {
   title: "Business-First Systems Engineering & Digital Products",
   description:
@@ -25,7 +27,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function Home() {
+export const instant = false;
+
+export default async function Home() {
+  const sanityProjects = await getProjects();
+  const caseStudyProjects = sanityProjects.map(mapSanityToCaseStudy);
   return (
     <div className="min-h-screen bg-[#05070a] text-white flex flex-col font-sans selection:bg-brand selection:text-[#1C2633]">
       {/* Top Navigation */}
@@ -52,7 +58,7 @@ export default function Home() {
         <ProjectEstimator />
 
         {/* 07 — Case Studies (Galaxy Store Platform Feature) */}
-        <CaseStudy />
+        <CaseStudy projects={caseStudyProjects} />
 
         {/* 08 — Interactive Conversation Scheduler & Booking Form */}
         <ScheduleConversation />

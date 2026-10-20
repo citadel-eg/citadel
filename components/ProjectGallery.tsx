@@ -20,85 +20,12 @@ export interface ProjectItem {
   link?: string;
 }
 
-export const FEATURED_PROJECTS: ProjectItem[] = [
-  {
-    id: "galaxy-store",
-    num: "01 / GALAXY STORE",
-    name: "Galaxy Store",
-    headline: "A storefront. An operation. A human connection.",
-    category: "CUSTOMER WEBSITE + INTERNAL DASHBOARD",
-    img: "/galaxy-store.png",
-    problem: "Dispatch ran through 14 shared spreadsheets and phone calls.",
-    system: "Customer website + internal dashboard.",
-    result: "Course-commerce & operations.",
-    badge: "The Work Continues Beyond The Screen.",
-  },
-  {
-    id: "viggo-vet",
-    num: "02 / VIGGO VET",
-    name: "Viggo Vet",
-    headline: "Multi-tenant veterinary operations at scale.",
-    category: "CLINIC OS + MULTI-TENANT ARCHITECTURE",
-    img: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=900&q=80&auto=format&fit=crop",
-    problem:
-      "Fragmented patient records across clinics delayed diagnosis by hours.",
-    system:
-      "Multi-tenant unified scheduling with telemetry and role-based permissions.",
-    result:
-      "Instant cross-clinic record access with 40% reduction in appointment churn.",
-    badge: "Multi-Tenant Clinic Architecture.",
-  },
-  {
-    id: "nexus-ledger",
-    num: "03 / NEXUS LEDGER",
-    name: "Nexus Ledger",
-    headline: "High-frequency streaming financial reconciliation.",
-    category: "FINTECH TELEMETRY + REPORTING",
-    img: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=900&q=80&auto=format&fit=crop",
-    problem:
-      "End-of-day batch processing left compliance teams blind during peak hours.",
-    system:
-      "Real-time stream processing with automated balance integrity audits.",
-    result: "Sub-second ledger verification and 60% faster sign-offs.",
-    badge: "<1s Telemetry Latency.",
-  },
-  {
-    id: "atlas-fleet",
-    num: "04 / ATLAS FLEET",
-    name: "Atlas Fleet",
-    headline: "Predictive routing and dispatch for global freight.",
-    category: "SUPPLY CHAIN OS + TELEMETRY",
-    img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=900&q=80&auto=format&fit=crop",
-    problem:
-      "Blind spots in last-mile transit caused costly SLA penalties and idle fleet time.",
-    system:
-      "Geospatial tracking portal with automated dispatch and driver telemetry.",
-    result:
-      "Reduced idle fleet hours by 34% and eliminated manual check-in calls.",
-    badge: "-34% Idle Fleet Time.",
-  },
-  {
-    id: "pulse-commerce",
-    num: "05 / PULSE COMMERCE",
-    name: "Pulse Headless",
-    headline: "Sub-second storefronts built for conversion.",
-    category: "E-COMMERCE ENGINE + DESIGN SYSTEM",
-    img: "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?w=900&q=80&auto=format&fit=crop",
-    problem:
-      "Legacy monolithic templates throttled mobile checkout speeds and SEO rankings.",
-    system:
-      "Edge-cached Next.js storefront coupled with a custom modular design system.",
-    result:
-      "99+ Core Web Vitals score and a measurable lift in checkout completion.",
-    badge: "99+ Core Web Vitals.",
-  },
-];
-
-interface ProjectGalleryProps {
+export interface ProjectGalleryProps {
   sectionNumber?: string;
   sectionTitle?: string;
   headline?: string;
   showExploreAll?: boolean;
+  projects?: ProjectItem[];
 }
 
 export function ProjectGallery({
@@ -106,13 +33,14 @@ export function ProjectGallery({
   sectionTitle = "Project Gallery",
   headline = "Understanding the challenge changes the solution.",
   showExploreAll = true,
+  projects = [],
 }: ProjectGalleryProps) {
   const sectionRef = useRef<HTMLElement>(null);
   const detailsRef = useRef<HTMLDivElement>(null);
   const visualRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(0);
 
-  const currentProject = FEATURED_PROJECTS[activeIdx] || FEATURED_PROJECTS[0];
+  const currentProject = projects[activeIdx] || projects[0];
 
   // 1. Scroll entrance reveal
   useGSAP(
@@ -209,6 +137,28 @@ export function ProjectGallery({
     { dependencies: [activeIdx], scope: sectionRef },
   );
 
+  if (!currentProject) {
+    return (
+      <section
+        ref={sectionRef}
+        id="work"
+        className="relative w-full py-16 md:py-24 px-6 sm:px-8 md:px-12 lg:px-16 xl:px-20 border-b border-white/10"
+      >
+        <div className="space-y-4 max-w-2xl mx-auto text-center py-16 border border-white/10 rounded-md bg-white/2">
+          <span className="text-xs font-mono tracking-[2px] uppercase text-brand">
+            {sectionNumber} / {sectionTitle}
+          </span>
+          <h3 className="text-xl sm:text-2xl font-bold text-white">
+            No Projects Published Yet
+          </h3>
+          <p className="text-xs sm:text-sm text-white/60">
+            Projects published in Sanity Studio will automatically appear here.
+          </p>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section
       ref={sectionRef}
@@ -241,7 +191,7 @@ export function ProjectGallery({
 
           {/* Project Switcher Navigation */}
           <div className="flex flex-wrap items-center gap-2">
-            {FEATURED_PROJECTS.map((p, idx) => {
+            {projects.map((p, idx) => {
               const isActive = activeIdx === idx;
               return (
                 <button

@@ -7,6 +7,8 @@ import {
   WorkConnectedAreas,
 } from "@/components/work/WorkSections";
 
+import { getProjects, mapSanityToCaseStudy } from "@/lib/sanity";
+
 export const metadata: Metadata = {
   title: "Selected Work & Case Studies",
   description:
@@ -22,7 +24,10 @@ export const metadata: Metadata = {
   },
 };
 
-export default function WorkPage() {
+export default async function WorkPage() {
+  const sanityProjects = await getProjects();
+  const caseStudyProjects = sanityProjects.map(mapSanityToCaseStudy);
+
   return (
     <div className="min-h-screen bg-[#05070a] text-white flex flex-col font-sans selection:bg-brand selection:text-[#1C2633]">
       <Header />
@@ -32,7 +37,7 @@ export default function WorkPage() {
         {/* <WorkHero /> */}
 
         {/* 02 / Project Gallery */}
-        <WorkProjectGallery />
+        <WorkProjectGallery projects={caseStudyProjects} />
 
         {/* 03 / Connected Areas of Work */}
         <WorkConnectedAreas />

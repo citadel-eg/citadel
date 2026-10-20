@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { gsap, useGSAP } from "@/lib/gsap";
 import { motion } from "@/lib/motion";
 import { CaseStudy } from "@/components/CaseStudy";
+import type { CaseStudyData } from "@/lib/sanity";
 
 // ==========================================
 // 01 / WORK HERO
@@ -115,12 +116,17 @@ export function WorkHero() {
 // 02 / PROJECT GALLERY (Case Study 3D Panorama)
 // ==========================================
 
-export function WorkProjectGallery() {
+export function WorkProjectGallery({
+  projects,
+}: {
+  projects?: CaseStudyData[];
+} = {}) {
   return (
     <CaseStudy
       sectionNumber="02"
       sectionTitle="Project Gallery"
       headline="Understanding the challenge changes the solution."
+      projects={projects}
     />
   );
 }
