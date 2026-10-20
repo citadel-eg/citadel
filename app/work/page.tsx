@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Header } from "@/components/Header";
 import { FooterCTA } from "@/components/FooterCTA";
 import {
-  WorkHero,
   WorkProjectGallery,
   WorkConnectedAreas,
 } from "@/components/work/WorkSections";
@@ -23,6 +22,8 @@ export const metadata: Metadata = {
     url: "/work",
   },
 };
+
+export const instant = false;
 
 export default async function WorkPage() {
   const sanityProjects = await getProjects();

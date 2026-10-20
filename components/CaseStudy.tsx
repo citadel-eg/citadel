@@ -105,13 +105,24 @@ export function CaseStudy({
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        gsap.set("[data-animate='case-hud']", {
-          opacity: 0,
-          y: 16,
-        });
-        gsap.set("[data-animate='case-ring']", {
-          opacity: 0,
-        });
+        const hasHud = Boolean(
+          sectionRef.current?.querySelector("[data-animate='case-hud']"),
+        );
+        const hasRing = Boolean(
+          sectionRef.current?.querySelector("[data-animate='case-ring']"),
+        );
+
+        if (hasHud) {
+          gsap.set("[data-animate='case-hud']", {
+            opacity: 0,
+            y: 16,
+          });
+        }
+        if (hasRing) {
+          gsap.set("[data-animate='case-ring']", {
+            opacity: 0,
+          });
+        }
 
         const tl = gsap.timeline({
           scrollTrigger: {
@@ -177,8 +188,10 @@ export function CaseStudy({
               ease: motion.ease.out,
             },
             0.12,
-          )
-          .to(
+          );
+
+        if (hasRing) {
+          tl.to(
             "[data-animate='case-ring']",
             {
               opacity: 1,
@@ -186,8 +199,11 @@ export function CaseStudy({
               ease: motion.ease.out,
             },
             0.16,
-          )
-          .to(
+          );
+        }
+
+        if (hasHud) {
+          tl.to(
             "[data-animate='case-hud']",
             {
               opacity: 1,
@@ -197,6 +213,7 @@ export function CaseStudy({
             },
             0.2,
           );
+        }
       });
 
       return () => {
